@@ -13,8 +13,8 @@ type Project struct {
 	Author      string `json:"author"`
 }
 
-func CreateProjectController(c echo.Context) error {
-	user, err := GetUserId(c)
+func createProjectController(c echo.Context) error {
+	user, err := getUserId(c)
 	if err != nil {
 		_ = c.JSON(http.StatusBadRequest, Response{
 			Success: false,
@@ -59,8 +59,8 @@ func CreateProjectController(c echo.Context) error {
 	return nil
 }
 
-func ReadProjectsController(c echo.Context) error {
-	user, err := GetUserId(c)
+func readProjectsController(c echo.Context) error {
+	user, err := getUserId(c)
 	if err != nil {
 		_ = c.JSON(http.StatusBadRequest, Response{
 			Success: false,
@@ -89,8 +89,8 @@ func ReadProjectsController(c echo.Context) error {
 	return nil
 }
 
-func UpdateProjectController(c echo.Context) error {
-	user, err := GetUserId(c)
+func updateProjectController(c echo.Context) error {
+	user, err := getUserId(c)
 	if err != nil {
 		_ = c.JSON(http.StatusBadRequest, Response{
 			Success: false,
@@ -138,8 +138,8 @@ func UpdateProjectController(c echo.Context) error {
 	return nil
 }
 
-func DeleteProjectController(c echo.Context) error {
-	user, err := GetUserId(c)
+func deleteProjectController(c echo.Context) error {
+	user, err := getUserId(c)
 	if err != nil {
 		_ = c.JSON(http.StatusBadRequest, Response{
 			Success: false,

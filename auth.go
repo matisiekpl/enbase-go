@@ -22,7 +22,7 @@ type User struct {
 	Role     string `json:"role" validate:"required"`
 }
 
-func LoginController(httpContext echo.Context) error {
+func loginController(httpContext echo.Context) error {
 	credentials := echo.Map{}
 	err := httpContext.Bind(&credentials)
 	if err != nil {
@@ -78,7 +78,7 @@ func LoginController(httpContext echo.Context) error {
 	return nil
 }
 
-func RegisterController(httpContext echo.Context) error {
+func registerController(httpContext echo.Context) error {
 	user := new(User)
 	err := httpContext.Bind(&user)
 	if err != nil {
@@ -133,7 +133,7 @@ func RegisterController(httpContext echo.Context) error {
 	}
 }
 
-func GetUserId(c echo.Context) (jwt.MapClaims, error) {
+func getUserId(c echo.Context) (jwt.MapClaims, error) {
 	tokenStr := strings.Replace(c.Request().Header.Get("Authorization"), "Bearer ", "", 1)
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

@@ -30,10 +30,10 @@ func BootstrapRestServer() {
 }
 
 func HandleRestRoutes() {
-	rest.POST("/auth/session", LoginController)
-	rest.POST("/auth/user", RegisterController)
-	rest.POST("/system/projects", CreateProjectController)
-	rest.GET("/system/projects", ReadProjectsController)
-	rest.PUT("/system/projects/:id", UpdateProjectController)
-	rest.DELETE("/system/projects/:id", DeleteProjectController)
+	rest.POST("/auth/session", loginController)
+	rest.POST("/auth/user", registerController)
+	rest.POST("/system/projects", createProjectController)
+	rest.GET("/system/projects", readProjectsController)
+	rest.PUT("/system/projects/:id", updateProjectController)
+	rest.DELETE("/system/projects/:id", deleteProjectController)
 }
