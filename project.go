@@ -7,7 +7,7 @@ import (
 )
 
 type Project struct {
-	Id          string `json:"id"`
+	Id          bson.ObjectId `json:"id" bson:"_id,omitempty"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Author      string `json:"author"`
@@ -81,7 +81,7 @@ func ReadProjectsController(c echo.Context) error {
 		})
 		return nil
 	}
-	_ = c.JSON(http.StatusBadRequest, Response{
+	_ = c.JSON(http.StatusOK, Response{
 		Success: true,
 		Message: "Successfully queried projects",
 		Data:    projects,
@@ -109,6 +109,7 @@ func UpdateProjectController(c echo.Context) error {
 		})
 		return nil
 	}
+	project.Author = user["_id"].(string)
 	if err = c.Validate(project); err != nil {
 		_ = c.JSON(http.StatusBadRequest, Response{
 			Success: false,

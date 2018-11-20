@@ -139,7 +139,7 @@ func GetUserId(c echo.Context) (jwt.MapClaims, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, nil
 		}
-		return "jwt-token-secret", nil
+		return []byte("jwt-token-secret"), nil
 	})
 	if err != nil {
 		return nil, err
