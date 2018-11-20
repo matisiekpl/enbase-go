@@ -26,7 +26,7 @@ func loginController(httpContext echo.Context) error {
 	credentials := echo.Map{}
 	err := httpContext.Bind(&credentials)
 	if err != nil {
-		_ = httpContext.JSON(http.StatusBadRequest, Response{
+		_ = httpContext.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Cannot decode body",
 			Data:    nil,
@@ -44,7 +44,7 @@ func loginController(httpContext echo.Context) error {
 		"password": hashedPassword,
 	}).One(&user)
 	if err != nil || user == nil {
-		_ = httpContext.JSON(http.StatusBadRequest, Response{
+		_ = httpContext.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Cannot find user with given credentials",
 			Data:    nil,
@@ -60,7 +60,7 @@ func loginController(httpContext echo.Context) error {
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 	tokenString, err := token.SignedString([]byte("jwt-token-secret"))
 	if err != nil {
-		_ = httpContext.JSON(http.StatusBadRequest, Response{
+		_ = httpContext.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Error while signing jwt token",
 			Data:    nil,
@@ -70,7 +70,7 @@ func loginController(httpContext echo.Context) error {
 	data := LoginResponseData{
 		Token: tokenString,
 	}
-	_ = httpContext.JSON(http.StatusOK, Response{
+	_ = httpContext.JSON(http.StatusOK, response{
 		Success: true,
 		Message: "Successfully signed in",
 		Data:    data,
@@ -82,7 +82,7 @@ func registerController(httpContext echo.Context) error {
 	user := new(User)
 	err := httpContext.Bind(&user)
 	if err != nil {
-		_ = httpContext.JSON(http.StatusBadRequest, Response{
+		_ = httpContext.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Cannot decode body",
 			Data:    nil,
@@ -90,7 +90,7 @@ func registerController(httpContext echo.Context) error {
 		return nil
 	}
 	if err = httpContext.Validate(user); err != nil {
-		_ = httpContext.JSON(http.StatusBadRequest, Response{
+		_ = httpContext.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Validation failed",
 			Data:    nil,
@@ -103,7 +103,7 @@ func registerController(httpContext echo.Context) error {
 	query["email"] = email
 	count, err := applicationDatabase.C("__users").Find(query).Count()
 	if err != nil {
-		_ = httpContext.JSON(http.StatusBadRequest, Response{
+		_ = httpContext.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Cannot query database",
 			Data:    nil,
@@ -117,20 +117,20 @@ func registerController(httpContext echo.Context) error {
 		user.Password = base64.URLEncoding.EncodeToString(passwordHash.Sum(nil)[:])
 		_ = applicationDatabase.C("__users").Insert(user)
 		user.Password = ""
-		_ = httpContext.JSON(http.StatusOK, Response{
+		_ = httpContext.JSON(http.StatusOK, response{
 			Success: true,
 			Message: "Successfully signed up",
 			Data:    user,
 		})
-		return nil
 	} else {
-		_ = httpContext.JSON(http.StatusBadRequest, Response{
+		_ = httpContext.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "User with given email exists",
 			Data:    nil,
 		})
 		return err
 	}
+	return nil
 }
 
 func getUserId(c echo.Context) (jwt.MapClaims, error) {

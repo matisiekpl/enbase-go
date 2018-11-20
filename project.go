@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-type Project struct {
+type project struct {
 	Id          bson.ObjectId `json:"id" bson:"_id,omitempty"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -16,17 +16,17 @@ type Project struct {
 func createProjectController(c echo.Context) error {
 	user, err := getUserId(c)
 	if err != nil {
-		_ = c.JSON(http.StatusBadRequest, Response{
+		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Cannot authorize user",
 			Data:    nil,
 		})
 		return nil
 	}
-	project := new(Project)
+	project := new(project)
 	err = c.Bind(&project)
 	if err != nil {
-		_ = c.JSON(http.StatusBadRequest, Response{
+		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Cannot decode body",
 			Data:    nil,
@@ -35,7 +35,7 @@ func createProjectController(c echo.Context) error {
 	}
 	project.Author = user["_id"].(string)
 	if err = c.Validate(project); err != nil {
-		_ = c.JSON(http.StatusBadRequest, Response{
+		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Validation failed",
 			Data:    nil,
@@ -44,16 +44,16 @@ func createProjectController(c echo.Context) error {
 	}
 	err = applicationDatabase.C("projects").Insert(project)
 	if err != nil {
-		_ = c.JSON(http.StatusBadRequest, Response{
+		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Cannot insert project to database",
 			Data:    nil,
 		})
 		return nil
 	}
-	_ = c.JSON(http.StatusCreated, Response{
+	_ = c.JSON(http.StatusCreated, response{
 		Success: true,
-		Message: "Project successfully inserted",
+		Message: "project successfully inserted",
 		Data:    project,
 	})
 	return nil
@@ -62,26 +62,26 @@ func createProjectController(c echo.Context) error {
 func readProjectsController(c echo.Context) error {
 	user, err := getUserId(c)
 	if err != nil {
-		_ = c.JSON(http.StatusBadRequest, Response{
+		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Cannot authorize user",
 			Data:    nil,
 		})
 		return nil
 	}
-	var projects []Project
+	var projects []project
 	err = applicationDatabase.C("projects").Find(echo.Map{
 		"author": user["_id"],
 	}).All(&projects)
 	if err != nil {
-		_ = c.JSON(http.StatusBadRequest, Response{
+		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Cannot query projects",
 			Data:    nil,
 		})
 		return nil
 	}
-	_ = c.JSON(http.StatusOK, Response{
+	_ = c.JSON(http.StatusOK, response{
 		Success: true,
 		Message: "Successfully queried projects",
 		Data:    projects,
@@ -92,17 +92,17 @@ func readProjectsController(c echo.Context) error {
 func updateProjectController(c echo.Context) error {
 	user, err := getUserId(c)
 	if err != nil {
-		_ = c.JSON(http.StatusBadRequest, Response{
+		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Cannot authorize user",
 			Data:    nil,
 		})
 		return nil
 	}
-	project := new(Project)
+	project := new(project)
 	err = c.Bind(&project)
 	if err != nil {
-		_ = c.JSON(http.StatusBadRequest, Response{
+		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Cannot decode body",
 			Data:    nil,
@@ -111,7 +111,7 @@ func updateProjectController(c echo.Context) error {
 	}
 	project.Author = user["_id"].(string)
 	if err = c.Validate(project); err != nil {
-		_ = c.JSON(http.StatusBadRequest, Response{
+		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Validation failed",
 			Data:    nil,
@@ -123,16 +123,16 @@ func updateProjectController(c echo.Context) error {
 	query["author"] = user["_id"]
 	err = applicationDatabase.C("projects").Update(query, project)
 	if err != nil {
-		_ = c.JSON(http.StatusBadRequest, Response{
+		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Cannot update project to database",
 			Data:    nil,
 		})
 		return nil
 	}
-	_ = c.JSON(http.StatusCreated, Response{
+	_ = c.JSON(http.StatusCreated, response{
 		Success: true,
-		Message: "Project successfully updated",
+		Message: "project successfully updated",
 		Data:    project,
 	})
 	return nil
@@ -141,7 +141,7 @@ func updateProjectController(c echo.Context) error {
 func deleteProjectController(c echo.Context) error {
 	user, err := getUserId(c)
 	if err != nil {
-		_ = c.JSON(http.StatusBadRequest, Response{
+		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Cannot authorize user",
 			Data:    nil,
@@ -153,16 +153,16 @@ func deleteProjectController(c echo.Context) error {
 	query["author"] = user["_id"]
 	err = applicationDatabase.C("projects").Remove(query)
 	if err != nil {
-		_ = c.JSON(http.StatusBadRequest, Response{
+		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Cannot delete project to database",
 			Data:    nil,
 		})
 		return nil
 	}
-	_ = c.JSON(http.StatusCreated, Response{
+	_ = c.JSON(http.StatusCreated, response{
 		Success: true,
-		Message: "Project successfully delete",
+		Message: "project successfully delete",
 		Data:    nil,
 	})
 	return nil

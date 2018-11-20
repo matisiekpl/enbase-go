@@ -1,7 +1,7 @@
 package main
 
 func main() {
-	ConnectToDatabase()
-	BootstrapRestServer()
+	connectToDatabase()
+	bootstrapRestServer()
 	rest.Logger.Fatal(rest.Start(":1323"))
 }

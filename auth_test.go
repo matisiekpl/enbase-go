@@ -12,9 +12,9 @@ func ClearDatabase() {
 }
 
 func TestSignInWithIncorrectCredentials(t *testing.T) {
-	ConnectToDatabase()
+	connectToDatabase()
 	ClearDatabase()
-	BootstrapRestServer()
+	bootstrapRestServer()
 	server := httptest.NewServer(rest)
 	defer server.Close()
 	e := httpexpect.New(t, server.URL)
@@ -25,9 +25,9 @@ func TestSignInWithIncorrectCredentials(t *testing.T) {
 }
 
 func TestSignInWithIncorrectBody(t *testing.T) {
-	ConnectToDatabase()
+	connectToDatabase()
 	ClearDatabase()
-	BootstrapRestServer()
+	bootstrapRestServer()
 	server := httptest.NewServer(rest)
 	defer server.Close()
 	e := httpexpect.New(t, server.URL)
@@ -35,9 +35,9 @@ func TestSignInWithIncorrectBody(t *testing.T) {
 }
 
 func TestSignUpWithIncorrectBody(t *testing.T) {
-	ConnectToDatabase()
+	connectToDatabase()
 	ClearDatabase()
-	BootstrapRestServer()
+	bootstrapRestServer()
 	server := httptest.NewServer(rest)
 	defer server.Close()
 	e := httpexpect.New(t, server.URL)
@@ -45,9 +45,9 @@ func TestSignUpWithIncorrectBody(t *testing.T) {
 }
 
 func TestSignInWithCorrectCredentials(t *testing.T) {
-	ConnectToDatabase()
+	connectToDatabase()
 	ClearDatabase()
-	BootstrapRestServer()
+	bootstrapRestServer()
 	server := httptest.NewServer(rest)
 	defer server.Close()
 	e := httpexpect.New(t, server.URL)
