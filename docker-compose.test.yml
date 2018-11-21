@@ -1,0 +1,13 @@
+version: '2'
+services:
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+    command: mongod --smallfiles --logpath=/dev/null
+  sut:
+    build: Dockerfile.test
+    links:
+      - mongo
+    environment:
+      MONGO: mongo
