@@ -335,6 +335,7 @@
     "github.com/dgrijalva/jwt-go",
     "github.com/gavv/httpexpect",
     "github.com/globalsign/mgo",
+    "github.com/globalsign/mgo/bson",
     "github.com/labstack/echo",
     "gopkg.in/go-playground/validator.v9",
   ]

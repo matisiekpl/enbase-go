@@ -1,12 +1,19 @@
 package main
 
-import "github.com/globalsign/mgo"
+import (
+	"github.com/globalsign/mgo"
+	"os"
+)
 
 var databaseSession *mgo.Session
 var applicationDatabase *mgo.Database
 
 func connectToDatabase() {
-	session, err := mgo.Dial("localhost:27017")
+	mongoUrl := os.Getenv("mongo")
+	if mongoUrl == "" {
+		mongoUrl = "localhost:27017"
+	}
+	session, err := mgo.Dial(mongoUrl)
 	if err != nil {
 		panic(err)
 	}
