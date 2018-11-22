@@ -6,8 +6,9 @@ services:
       - 27017:27017
     command: mongod --smallfiles --logpath=/dev/null
   sut:
-    context: .
-    dockerfile: Dockerfile-test
+    build:
+      context: .
+      dockerfile: Dockerfile-test
     links:
       - mongo
     environment:
