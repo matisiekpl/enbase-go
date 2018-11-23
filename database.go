@@ -12,6 +12,7 @@ type database struct {
 	Description string        `json:"description"`
 	Author      string        `json:"author"`
 	Project     string        `json:"project"`
+	Rules       echo.Map      `json:"rules"`
 }
 
 func createDatabaseController(c echo.Context) error {
@@ -88,7 +89,7 @@ func readDatabasesController(c echo.Context) error {
 	}
 	var databases []database
 	err = applicationDatabase.C("databases").Find(echo.Map{
-		"project":  c.Param("project"),
+		"project": c.Param("project"),
 	}).All(&databases)
 	if err != nil {
 		_ = c.JSON(http.StatusBadRequest, response{
@@ -200,4 +201,3 @@ func deleteDatabaseController(c echo.Context) error {
 	})
 	return nil
 }
-
