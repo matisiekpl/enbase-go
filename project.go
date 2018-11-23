@@ -171,7 +171,7 @@ func deleteProjectController(c echo.Context) error {
 	}
 	_ = c.JSON(http.StatusCreated, response{
 		Success: true,
-		Message: "project successfully delete",
+		Message: "Project successfully delete",
 		Data:    nil,
 	})
 	return nil
