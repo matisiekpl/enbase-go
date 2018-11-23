@@ -8,9 +8,18 @@ import (
 
 type project struct {
 	Id          bson.ObjectId `json:"id" bson:"_id,omitempty"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Author      string `json:"author"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Author      string        `json:"author"`
+}
+
+func isProjectExists(id string, userId string) bool {
+	var project project
+	err := applicationDatabase.C("projects").Find(echo.Map{
+		"author": userId,
+		"_id":    bson.ObjectIdHex(id),
+	}).One(&project)
+	return err == nil
 }
 
 func createProjectController(c echo.Context) error {

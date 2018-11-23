@@ -36,4 +36,8 @@ func handleRestRoutes() {
 	rest.GET("/system/projects", readProjectsController)
 	rest.PUT("/system/projects/:id", updateProjectController)
 	rest.DELETE("/system/projects/:id", deleteProjectController)
+	rest.POST("/system/projects/:project/databases", createDatabaseController)
+	rest.GET("/system/projects/:project/databases", readDatabasesController)
+	rest.PUT("/system/projects/:project/databases/:id", updateDatabaseController)
+	rest.DELETE("/system/projects/:project/databases/:id", deleteDatabaseController)
 }
