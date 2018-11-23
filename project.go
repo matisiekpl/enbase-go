@@ -7,10 +7,10 @@ import (
 )
 
 type project struct {
-	Id          bson.ObjectId `json:"id" bson:"_id,omitempty"`
-	Name        string        `json:"name"`
-	Description string        `json:"description"`
-	Author      string        `json:"author"`
+	Id           bson.ObjectId `json:"id" bson:"_id,omitempty"`
+	Name         string        `json:"name"`
+	Description  string        `json:"description"`
+	Author       string        `json:"author"`
 }
 
 func isProjectExists(id string, userId string) bool {
@@ -62,7 +62,7 @@ func createProjectController(c echo.Context) error {
 	}
 	_ = c.JSON(http.StatusCreated, response{
 		Success: true,
-		Message: "project successfully inserted",
+		Message: "Project successfully inserted",
 		Data:    project,
 	})
 	return nil
