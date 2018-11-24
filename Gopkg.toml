@@ -52,3 +52,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/joncalhoun/qson"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/robertkrimen/otto"

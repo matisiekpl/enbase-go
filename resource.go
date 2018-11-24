@@ -12,7 +12,7 @@ func createResourceController(c echo.Context) error {
 	databaseId := c.Param("database")
 	collectionName := c.Param("collection")
 	var database database
-	//user, _ := getUserId(c)
+	user, _ := getUserId(c)
 	if err := applicationDatabase.C("databases").Find(echo.Map{
 		"_id": bson.ObjectIdHex(databaseId),
 	}).One(&database); err != nil {
@@ -29,6 +29,14 @@ func createResourceController(c echo.Context) error {
 		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Cannot decode body",
+			Data:    nil,
+		})
+		return nil
+	}
+	if !permit(database, collectionName, user, "create", resource, "") {
+		_ = c.JSON(http.StatusBadRequest, response{
+			Success: false,
+			Message: "Access denied",
 			Data:    nil,
 		})
 		return nil
@@ -54,7 +62,7 @@ func readResourcesController(c echo.Context) error {
 	databaseId := c.Param("database")
 	collectionName := c.Param("collection")
 	var database database
-	//user, _ := getUserId(c)
+	user, _ := getUserId(c)
 	if err := applicationDatabase.C("databases").Find(echo.Map{
 		"_id": bson.ObjectIdHex(databaseId),
 	}).One(&database); err != nil {
@@ -72,7 +80,9 @@ func readResourcesController(c echo.Context) error {
 	var resource interface{}
 	var resources []interface{}
 	for iter.Next(&resource) {
-		resources = append(resources, resource)
+		if permit(database, collectionName, user, "read", resource, "") {
+			resources = append(resources, resource)
+		}
 	}
 	_ = c.JSON(http.StatusOK, response{
 		Success: true,
@@ -86,7 +96,7 @@ func updateResourceController(c echo.Context) error {
 	databaseId := c.Param("database")
 	collectionName := c.Param("collection")
 	var database database
-	//user, _ := getUserId(c)
+	user, _ := getUserId(c)
 	if err := applicationDatabase.C("databases").Find(echo.Map{
 		"_id": bson.ObjectIdHex(databaseId),
 	}).One(&database); err != nil {
@@ -103,6 +113,14 @@ func updateResourceController(c echo.Context) error {
 		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Cannot decode body",
+			Data:    nil,
+		})
+		return nil
+	}
+	if !permit(database, collectionName, user, "update", resource, "") {
+		_ = c.JSON(http.StatusBadRequest, response{
+			Success: false,
+			Message: "Access denied",
 			Data:    nil,
 		})
 		return nil
@@ -130,13 +148,21 @@ func deleteResourceController(c echo.Context) error {
 	databaseId := c.Param("database")
 	collectionName := c.Param("collection")
 	var database database
-	//user, _ := getUserId(c)
+	user, _ := getUserId(c)
 	if err := applicationDatabase.C("databases").Find(echo.Map{
 		"_id": bson.ObjectIdHex(databaseId),
 	}).One(&database); err != nil {
 		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Cannot find database",
+			Data:    nil,
+		})
+		return nil
+	}
+	if !permit(database, collectionName, user, "delete", nil, "") {
+		_ = c.JSON(http.StatusBadRequest, response{
+			Success: false,
+			Message: "Access denied",
 			Data:    nil,
 		})
 		return nil
