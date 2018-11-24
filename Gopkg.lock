@@ -10,6 +10,14 @@
   version = "v1.5"
 
 [[projects]]
+  digest = "1:259651ca4058543532c88dbdd650fe99d8b02f785dceeae01ba0435a6c9f7c72"
+  name = "github.com/cskr/pubsub"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "a1dc30a0b38055a251f1f04ceb4cc1c7207b0540"
+  version = "v1.0.1"
+
+[[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -202,6 +210,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:68284c262f45718a220f7e817c2125a0f20eb3924be5074fa187ff7bc600c47e"
+  name = "github.com/streadway/amqp"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "27835f1a64e97101d95306211f03c0620ffa295d"
+
+[[projects]]
   digest = "1:c40d65817cdd41fac9aa7af8bed56927bb2d6d47e4fea566a74880f5c2b1c41e"
   name = "github.com/stretchr/testify"
   packages = [
@@ -304,11 +320,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e56a91f64003cb1bf7fed334ba2615d9750991d4570d5254a7cdbeac3374d546"
+  digest = "1:20f6e16a701b5b3b66c7b33e48a204e254f606b758d909c89b781b1d7d81de73"
   name = "golang.org/x/net"
   packages = [
     "idna",
     "publicsuffix",
+    "websocket",
   ]
   pruneopts = "UT"
   revision = "adae6a3d119ae4890b46832a2e88a95adc62b8e7"
@@ -367,6 +384,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/cskr/pubsub",
     "github.com/dgrijalva/jwt-go",
     "github.com/gavv/httpexpect",
     "github.com/globalsign/mgo",
@@ -374,6 +392,8 @@
     "github.com/joncalhoun/qson",
     "github.com/labstack/echo",
     "github.com/robertkrimen/otto",
+    "github.com/streadway/amqp",
+    "golang.org/x/net/websocket",
     "gopkg.in/go-playground/validator.v9",
   ]
   solver-name = "gps-cdcl"

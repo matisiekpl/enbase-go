@@ -5,8 +5,18 @@ import (
 	"github.com/globalsign/mgo/bson"
 	"github.com/joncalhoun/qson"
 	"github.com/labstack/echo"
+	"golang.org/x/net/websocket"
 	"net/http"
 )
+
+type resourceChange struct {
+	DatabaseId     string      `json:"database_id"`
+	DatabaseName   string      `json:"database_name"`
+	CollectionName string      `json:"collection_name"`
+	Document       interface{} `json:"document"`
+	DocumentId     string      `json:"document_id"`
+	Action         string      `json:"action"`
+}
 
 func createResourceController(c echo.Context) error {
 	databaseId := c.Param("database")
@@ -50,6 +60,14 @@ func createResourceController(c echo.Context) error {
 		})
 		return nil
 	}
+	_ = publishChange(resourceChange{
+		DatabaseName:   database.Name,
+		CollectionName: collectionName,
+		Document:       resource,
+		DocumentId:     "",
+		Action:         "create",
+		DatabaseId:     databaseId,
+	})
 	_ = c.JSON(http.StatusCreated, response{
 		Success: true,
 		Message: "Resource successfully inserted",
@@ -136,6 +154,14 @@ func updateResourceController(c echo.Context) error {
 		})
 		return nil
 	}
+	_ = publishChange(resourceChange{
+		DatabaseName:   database.Name,
+		CollectionName: collectionName,
+		DocumentId:     c.Param("id"),
+		Document:       resource,
+		Action:         "update",
+		DatabaseId:     databaseId,
+	})
 	_ = c.JSON(http.StatusCreated, response{
 		Success: true,
 		Message: "Resource successfully updated",
@@ -178,10 +204,37 @@ func deleteResourceController(c echo.Context) error {
 		})
 		return nil
 	}
+	_ = publishChange(resourceChange{
+		DatabaseName:   database.Name,
+		CollectionName: collectionName,
+		Document:       nil,
+		DocumentId:     c.Param("id"),
+		Action:         "delete",
+		DatabaseId:     databaseId,
+	})
 	_ = c.JSON(http.StatusCreated, response{
 		Success: true,
 		Message: "Resource successfully delete",
 		Data:    nil,
 	})
+	return nil
+}
+
+func changesController(c echo.Context) error {
+	websocket.Handler(func(ws *websocket.Conn) {
+		defer ws.Close()
+		sub := localPubsub.Sub("changes")
+		for msg := range sub {
+			change := msg.(resourceChange)
+			if change.DatabaseId == c.Param("database") && change.CollectionName == c.Param("collection") && change.Action == c.Param("action") {
+				var database database
+				_ = applicationDatabase.C("databases").FindId(bson.ObjectIdHex(c.Param("database"))).One(&database)
+				if permit(database, c.Param("collection"), nil, change.Action, change.Document, change.DocumentId) {
+					payload, _ := json.Marshal(change)
+					_ = websocket.Message.Send(ws, []byte(payload))
+				}
+			}
+		}
+	}).ServeHTTP(c.Response(), c.Request())
 	return nil
 }
