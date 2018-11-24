@@ -48,3 +48,7 @@
 [[constraint]]
   name = "gopkg.in/go-playground/validator.v9"
   version = "9.23.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/joncalhoun/qson"

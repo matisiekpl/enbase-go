@@ -99,6 +99,14 @@
   version = "v1.1.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:3daa28dd53624e04229a3499b6bb547b4c467d488e8293b1fc9d67a922713896"
+  name = "github.com/joncalhoun/qson"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "8a9cab3a62b1b693e7dfa590a215dc6217552803"
+
+[[projects]]
   digest = "1:aaa8e0e7e35d92e21daed3f241832cee73d15ca1cd3302ba3843159a959a7eac"
   name = "github.com/klauspost/compress"
   packages = [
@@ -336,6 +344,7 @@
     "github.com/gavv/httpexpect",
     "github.com/globalsign/mgo",
     "github.com/globalsign/mgo/bson",
+    "github.com/joncalhoun/qson",
     "github.com/labstack/echo",
     "gopkg.in/go-playground/validator.v9",
   ]

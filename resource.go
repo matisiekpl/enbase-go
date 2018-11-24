@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/globalsign/mgo/bson"
+	"github.com/joncalhoun/qson"
 	"github.com/labstack/echo"
 	"net/http"
 )
@@ -63,7 +65,10 @@ func readResourcesController(c echo.Context) error {
 		})
 		return nil
 	}
-	iter := databaseSession.DB(database.Name).C(collectionName).Find(echo.Map{}).Iter()
+	queryJson, _ := qson.ToJSON(c.QueryString())
+	var query interface{}
+	_ = json.Unmarshal(queryJson, &query)
+	iter := databaseSession.DB(database.Name).C(collectionName).Find(query).Iter()
 	var resource interface{}
 	var resources []interface{}
 	for iter.Next(&resource) {

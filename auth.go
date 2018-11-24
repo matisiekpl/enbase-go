@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/sha512"
 	"encoding/base64"
-	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"io"
@@ -39,7 +38,7 @@ func loginController(httpContext echo.Context) error {
 	passwordHash := sha512.New()
 	_, _ = io.WriteString(passwordHash, password)
 	hashedPassword := base64.URLEncoding.EncodeToString(passwordHash.Sum(nil)[:])
-	err = applicationDatabase.C("__users").Find(echo.Map{
+	err = applicationDatabase.C("users").Find(echo.Map{
 		"email":    email,
 		"password": hashedPassword,
 	}).One(&user)
@@ -95,13 +94,12 @@ func registerController(httpContext echo.Context) error {
 			Message: "Validation failed",
 			Data:    nil,
 		})
-		fmt.Println(err)
 		return nil
 	}
 	email := user.Email
 	query := make(echo.Map)
 	query["email"] = email
-	count, err := applicationDatabase.C("__users").Find(query).Count()
+	count, err := applicationDatabase.C("users").Find(query).Count()
 	if err != nil {
 		_ = httpContext.JSON(http.StatusBadRequest, response{
 			Success: false,
@@ -115,7 +113,7 @@ func registerController(httpContext echo.Context) error {
 		passwordHash := sha512.New()
 		_, _ = io.WriteString(passwordHash, password)
 		user.Password = base64.URLEncoding.EncodeToString(passwordHash.Sum(nil)[:])
-		_ = applicationDatabase.C("__users").Insert(user)
+		_ = applicationDatabase.C("users").Insert(user)
 		user.Password = ""
 		_ = httpContext.JSON(http.StatusOK, response{
 			Success: true,
