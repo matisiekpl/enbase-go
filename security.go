@@ -12,6 +12,18 @@ func permit(database database, collectionName string, user jwt.MapClaims, action
 		return false
 	}
 	vm := otto.New()
+	_ = vm.Set("user", user)
+	_ = vm.Set("action", action)
+	_ = vm.Set("document", document)
+	_ = vm.Set("id", id)
+	_ = vm.Set("get", func(call otto.FunctionCall) otto.Value {
+		collectionName := call.Argument(0).String()
+		query, _ := call.Argument(1).Export()
+		var all []interface{}
+		_ = databaseSession.DB(database.Name).C(collectionName).Find(query).All(&all)
+		value, _ := otto.ToValue(all)
+		return value
+	})
 	result, err := vm.Run(rule)
 	if err != nil {
 		fmt.Println(err)
