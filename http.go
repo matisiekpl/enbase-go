@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"gopkg.in/go-playground/validator.v9"
 )
 
@@ -30,6 +31,7 @@ func bootstrapRestServer() {
 }
 
 func handleRestRoutes() {
+	rest.Use(middleware.CORS())
 	rest.POST("/auth/session", loginController)
 	rest.POST("/auth/user", registerController)
 	rest.POST("/system/projects", createProjectController)
