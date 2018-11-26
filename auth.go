@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -57,7 +58,7 @@ func loginController(httpContext echo.Context) error {
 	claims["lastName"] = user["lastName"]
 	claims["_id"] = user["_id"]
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
-	tokenString, err := token.SignedString([]byte("jwt-token-secret"))
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		_ = httpContext.JSON(http.StatusBadRequest, response{
 			Success: false,
@@ -137,7 +138,7 @@ func getUserId(c echo.Context) (jwt.MapClaims, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, nil
 		}
-		return []byte("jwt-token-secret"), nil
+		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 	if err != nil {
 		return nil, err
