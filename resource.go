@@ -60,6 +60,10 @@ func createResourceController(c echo.Context) error {
 		})
 		return nil
 	}
+	database.Creates++
+	query := echo.Map{}
+	query["_id"] = database.Id
+	_ = applicationDatabase.C("databases").Update(query, database)
 	_ = publishChange(resourceChange{
 		DatabaseName:   database.Name,
 		CollectionName: collectionName,
@@ -99,6 +103,10 @@ func readResourcesController(c echo.Context) error {
 	var resources []interface{}
 	for iter.Next(&resource) {
 		if permit(database, collectionName, user, "read", resource, "") {
+			database.Reads++
+			query := echo.Map{}
+			query["_id"] = database.Id
+			_ = applicationDatabase.C("databases").Update(query, database)
 			resources = append(resources, resource)
 		}
 	}
@@ -154,6 +162,10 @@ func updateResourceController(c echo.Context) error {
 		})
 		return nil
 	}
+	database.Updates++
+	query = echo.Map{}
+	query["_id"] = database.Id
+	_ = applicationDatabase.C("databases").Update(query, database)
 	_ = publishChange(resourceChange{
 		DatabaseName:   database.Name,
 		CollectionName: collectionName,
@@ -204,6 +216,10 @@ func deleteResourceController(c echo.Context) error {
 		})
 		return nil
 	}
+	database.Deletes++
+	query = echo.Map{}
+	query["_id"] = database.Id
+	_ = applicationDatabase.C("databases").Update(query, database)
 	_ = publishChange(resourceChange{
 		DatabaseName:   database.Name,
 		CollectionName: collectionName,
