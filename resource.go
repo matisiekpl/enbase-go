@@ -43,7 +43,7 @@ func createResourceController(c echo.Context) error {
 		})
 		return nil
 	}
-	if !permit(database, collectionName, user, "create", resource, "") || database.Creates <= 0 {
+	if !permit(database, collectionName, user, "create", resource, "") || (limited && database.Creates <= 0) {
 		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Access denied",
@@ -60,7 +60,9 @@ func createResourceController(c echo.Context) error {
 		})
 		return nil
 	}
-	database.Creates--
+	if limited {
+		database.Creates--
+	}
 	query := echo.Map{}
 	query["_id"] = database.Id
 	_ = applicationDatabase.C("databases").Update(query, database)
@@ -102,8 +104,10 @@ func readResourcesController(c echo.Context) error {
 	var resource interface{}
 	var resources []interface{}
 	for iter.Next(&resource) {
-		if permit(database, collectionName, user, "read", resource, "") || database.Reads <= 0 {
-			database.Reads--
+		if permit(database, collectionName, user, "read", resource, "") || (limited && database.Reads <= 0) {
+			if limited {
+				database.Reads--
+			}
 			query := echo.Map{}
 			query["_id"] = database.Id
 			_ = applicationDatabase.C("databases").Update(query, database)
@@ -143,7 +147,7 @@ func updateResourceController(c echo.Context) error {
 		})
 		return nil
 	}
-	if !permit(database, collectionName, user, "update", resource, "") || database.Updates <= 0 {
+	if !permit(database, collectionName, user, "update", resource, "") || (limited && database.Updates <= 0) {
 		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Access denied",
@@ -162,7 +166,9 @@ func updateResourceController(c echo.Context) error {
 		})
 		return nil
 	}
-	database.Updates--
+	if limited {
+		database.Updates--
+	}
 	query = echo.Map{}
 	query["_id"] = database.Id
 	_ = applicationDatabase.C("databases").Update(query, database)
@@ -197,7 +203,7 @@ func deleteResourceController(c echo.Context) error {
 		})
 		return nil
 	}
-	if !permit(database, collectionName, user, "delete", nil, "") || database.Deletes <= 0 {
+	if !permit(database, collectionName, user, "delete", nil, "") || (limited && database.Deletes <= 0) {
 		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
 			Message: "Access denied",
@@ -216,7 +222,9 @@ func deleteResourceController(c echo.Context) error {
 		})
 		return nil
 	}
-	database.Deletes--
+	if limited {
+		database.Deletes--
+	}
 	query = echo.Map{}
 	query["_id"] = database.Id
 	_ = applicationDatabase.C("databases").Update(query, database)
