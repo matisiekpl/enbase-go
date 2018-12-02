@@ -51,7 +51,7 @@ func createResourceController(c echo.Context) error {
 		})
 		return nil
 	}
-	err = databaseSession.DB(database.Id.String()).C(collectionName).Insert(resource)
+	err = databaseSession.DB(database.Id.Hex()).C(collectionName).Insert(resource)
 	if err != nil {
 		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
@@ -98,7 +98,7 @@ func readResourcesController(c echo.Context) error {
 	queryJson, _ := qson.ToJSON(c.QueryString())
 	var query interface{}
 	_ = json.Unmarshal(queryJson, &query)
-	iter := databaseSession.DB(database.Id.String()).C(collectionName).Find(query).Iter()
+	iter := databaseSession.DB(database.Id.Hex()).C(collectionName).Find(query).Iter()
 	var resource interface{}
 	var resources []interface{}
 	for iter.Next(&resource) {
@@ -153,7 +153,7 @@ func updateResourceController(c echo.Context) error {
 	}
 	query := echo.Map{}
 	query["_id"] = bson.ObjectIdHex(c.Param("id"))
-	err = databaseSession.DB(database.Id.String()).C(collectionName).Update(query, resource)
+	err = databaseSession.DB(database.Id.Hex()).C(collectionName).Update(query, resource)
 	if err != nil {
 		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
@@ -207,7 +207,7 @@ func deleteResourceController(c echo.Context) error {
 	}
 	query := echo.Map{}
 	query["_id"] = bson.ObjectIdHex(c.Param("id"))
-	err := databaseSession.DB(database.Id.String()).C(collectionName).Remove(query)
+	err := databaseSession.DB(database.Id.Hex()).C(collectionName).Remove(query)
 	if err != nil {
 		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
