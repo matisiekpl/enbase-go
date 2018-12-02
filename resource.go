@@ -104,7 +104,7 @@ func readResourcesController(c echo.Context) error {
 	var resource interface{}
 	var resources []interface{}
 	for iter.Next(&resource) {
-		if permit(database, collectionName, user, "read", resource, "") || (limited && database.Reads <= 0) {
+		if permit(database, collectionName, user, "read", resource, "") && !(limited && database.Reads <= 0) {
 			if limited {
 				database.Reads--
 			}
