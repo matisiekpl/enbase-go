@@ -44,3 +44,14 @@ Example
 `POST /auth/user` - register new user
 
 `POST /auth/session` - sign in
+
+`<method> /system/projects` - operate on projects
+
+`<method> /system/projects/<projectId>` - operate on project
+
+`<method> /system/projects/<projectId>/databases` - operate on databases
+
+`<method> /system/projects/<projectId>/databases/<databaseId>` - operate on database
+
+##### Methods
+`POST`, `GET`, `PUT`, `DELETE`
