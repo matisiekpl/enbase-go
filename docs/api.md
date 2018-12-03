@@ -53,5 +53,9 @@ Example
 
 `<method> /system/projects/<projectId>/databases/<databaseId>` - operate on database
 
+`<method> /apps/<databaseId>/<collectionName>` - operate on resources
+
+`<method> /apps/<databaseId>/<collectionName>/<resourceId>` - operate on resource
+
 ##### Methods
 `POST`, `GET`, `PUT`, `DELETE`
