@@ -17,6 +17,7 @@ type database struct {
 	Creates     int           `json:"writes"`
 	Updates     int           `json:"updates"`
 	Deletes     int           `json:"deletes"`
+	Url         string        `json:"url"`
 }
 
 func createDatabaseController(c echo.Context) error {

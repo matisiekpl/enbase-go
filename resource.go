@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/joncalhoun/qson"
 	"github.com/labstack/echo"
@@ -51,7 +52,12 @@ func createResourceController(c echo.Context) error {
 		})
 		return nil
 	}
-	err = databaseSession.DB(database.Id.Hex()).C(collectionName).Insert(resource)
+	if database.Url == "" {
+		err = databaseSession.DB(database.Id.Hex()).C(collectionName).Insert(resource)
+	} else {
+		session, _ := mgo.Dial(database.Url)
+		err = session.DB("").C(collectionName).Insert(resource)
+	}
 	if err != nil {
 		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
@@ -100,7 +106,13 @@ func readResourcesController(c echo.Context) error {
 	queryJson, _ := qson.ToJSON(c.QueryString())
 	var query interface{}
 	_ = json.Unmarshal(queryJson, &query)
-	iter := databaseSession.DB(database.Id.Hex()).C(collectionName).Find(query).Iter()
+	var iter *mgo.Iter
+	if database.Url == "" {
+		iter = databaseSession.DB(database.Id.Hex()).C(collectionName).Find(query).Iter()
+	} else {
+		session, _ := mgo.Dial(database.Url)
+		iter = session.DB("").C(collectionName).Find(query).Iter()
+	}
 	var resource interface{}
 	var resources []interface{}
 	for iter.Next(&resource) {
@@ -157,7 +169,12 @@ func updateResourceController(c echo.Context) error {
 	}
 	query := echo.Map{}
 	query["_id"] = bson.ObjectIdHex(c.Param("id"))
-	err = databaseSession.DB(database.Id.Hex()).C(collectionName).Update(query, resource)
+	if database.Url == "" {
+		err = databaseSession.DB(database.Id.Hex()).C(collectionName).Update(query, resource)
+	} else {
+		session, _ := mgo.Dial(database.Url)
+		err = session.DB("").C(collectionName).Update(query, resource)
+	}
 	if err != nil {
 		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,
@@ -213,7 +230,13 @@ func deleteResourceController(c echo.Context) error {
 	}
 	query := echo.Map{}
 	query["_id"] = bson.ObjectIdHex(c.Param("id"))
-	err := databaseSession.DB(database.Id.Hex()).C(collectionName).Remove(query)
+	var err error
+	if database.Url == "" {
+		err = databaseSession.DB(database.Id.Hex()).C(collectionName).Remove(query)
+	} else {
+		session, _ := mgo.Dial(database.Url)
+		err = session.DB("").C(collectionName).Remove(query)
+	}
 	if err != nil {
 		_ = c.JSON(http.StatusBadRequest, response{
 			Success: false,

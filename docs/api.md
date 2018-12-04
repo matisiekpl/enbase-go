@@ -23,7 +23,8 @@
   "description": string,
   "rules": {
     "<collection>:<action>": string
-  }
+  },
+  "url": string
 }
 ```
 ##### Actions

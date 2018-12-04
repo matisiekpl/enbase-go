@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/globalsign/mgo"
 	"github.com/robertkrimen/otto"
 )
 
@@ -20,7 +21,12 @@ func permit(database database, collectionName string, user jwt.MapClaims, action
 		collectionName := call.Argument(0).String()
 		query, _ := call.Argument(1).Export()
 		var all []interface{}
-		_ = databaseSession.DB(database.Name).C(collectionName).Find(query).All(&all)
+		if database.Url == "" {
+			_ = databaseSession.DB(database.Name).C(collectionName).Find(query).All(&all)
+		} else {
+			session, _ := mgo.Dial(database.Url)
+			_ = session.DB("").C(collectionName).Find(query).All(&all)
+		}
 		value, _ := otto.ToValue(all)
 		return value
 	})
