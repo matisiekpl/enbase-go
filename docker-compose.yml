@@ -1,0 +1,25 @@
+version: '3'
+services:
+  rabbit:
+    image: "rabbitmq:3-management"
+    ports:
+      - 15672:15672
+      - 5672:5672
+    volumes:
+      - "./enabled_plugins:/etc/rabbitmq/enabled_plugins"
+  mongo:
+    image: mongo
+    volumes:
+      - ./data/db:/data/db
+    ports:
+      - 27017:27017
+  enbase:
+    image: enteam/enbase
+    environment:
+      - MONGO: mongo:27017
+      - RABBIT: amqp://guest:guest@rabbit:5672/
+    ports:
+      - 1323:1323
+    depends_on:
+      - mongo
+      - rabbit
