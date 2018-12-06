@@ -21,20 +21,25 @@ spec:
     spec:
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "enteam/enbase:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 1323
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
+          {{/*livenessProbe:*/}}
+            {{/*httpGet:*/}}
+              {{/*path: /*/}}
+              {{/*port: 1323*/}}
+          {{/*readinessProbe:*/}}
+            {{/*httpGet:*/}}
+              {{/*path: /*/}}
+              {{/*port: 1323*/}}
+          env:
+            - name: MONGO
+              value: {{ .Values.mongo }}
+            - name: RABBIT
+              value: {{ .Values.rabbit }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
