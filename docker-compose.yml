@@ -16,8 +16,8 @@ services:
   enbase:
     image: enteam/enbase
     environment:
-      - MONGO: mongo:27017
-      - RABBIT: amqp://guest:guest@rabbit:5672/
+      - MONGO: "mongo:27017"
+      - RABBIT: "amqp://guest:guest@rabbit:5672/"
     ports:
       - 1323:1323
     depends_on:
