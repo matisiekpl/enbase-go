@@ -1,0 +1,56 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "enbase.fullname" . }}
+  labels:
+    app: {{ template "enbase.name" . }}
+    chart: {{ template "enbase.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "enbase.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "enbase.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "enteam/enbase:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 1323
+              protocol: TCP
+          {{/*livenessProbe:*/}}
+            {{/*httpGet:*/}}
+              {{/*path: /*/}}
+              {{/*port: 1323*/}}
+          {{/*readinessProbe:*/}}
+            {{/*httpGet:*/}}
+              {{/*path: /*/}}
+              {{/*port: 1323*/}}
+          env:
+            - name: MONGO
+              value: {{ .Values.mongo }}
+            - name: RABBIT
+              value: {{ .Values.rabbit }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
