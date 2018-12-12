@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo"
 	"golang.org/x/net/websocket"
 	"net/http"
+	"strconv"
 )
 
 type resourceChange struct {
@@ -115,15 +116,28 @@ func readResourcesController(c echo.Context) error {
 	}
 	var resource interface{}
 	var resources []interface{}
-	for iter.Next(&resource) {
+	resourcesLimit := 50
+	resourcesSkip := 0
+	if c.Request().Header.Get("X-enbase-limit") != "" {
+		resourcesLimit, _ = strconv.Atoi(c.Request().Header.Get("X-enbase-limit"))
+	}
+	if c.Request().Header.Get("X-enbase-skip") != "" {
+		resourcesSkip, _ = strconv.Atoi(c.Request().Header.Get("X-enbase-skip"))
+	}
+	resourcesCount := 0
+	for resourcesCount < resourcesLimit && iter.Next(&resource) {
 		if permit(database, collectionName, user, "read", resource, "") && !(limited && database.Reads <= 0) {
-			if limited {
-				database.Reads--
+			resourcesSkip--
+			if resourcesSkip < 0 {
+				if limited {
+					database.Reads--
+				}
+				query := echo.Map{}
+				query["_id"] = database.Id
+				_ = applicationDatabase.C("databases").Update(query, database)
+				resources = append(resources, resource)
+				resourcesCount++
 			}
-			query := echo.Map{}
-			query["_id"] = database.Id
-			_ = applicationDatabase.C("databases").Update(query, database)
-			resources = append(resources, resource)
 		}
 	}
 	_ = c.JSON(http.StatusOK, response{
