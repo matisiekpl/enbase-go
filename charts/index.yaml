@@ -8,6 +8,6 @@ entries:
     digest: 50e6923793bc52763bbb9338dd0c97d80a6f3c2ccceea60db6160b88c1bffd6b
     name: enbase
     urls:
-    - https://enteam.github.io/enbase/charts/enbase-0.1.0.tgz
+    - https://raw.githubusercontent.com/enteam/enbase/master/charts/enbase-0.1.0.tgz
     version: 0.1.0
 generated: 2018-12-12T20:13:57.4675789+01:00
