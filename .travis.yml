@@ -13,7 +13,6 @@ install:
   - dep ensure
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-  - docker build -t
 jobs:
   include:
     - stage: test
