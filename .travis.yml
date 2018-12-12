@@ -19,8 +19,8 @@ jobs:
         - go test -race -coverprofile=coverage.txt -covermode=atomic
     - stage: deploy
       script:
-        - docker build -t enteam/enbase:$TRAVIS_BUILD_ID .
-        - if [[ "$TRAVIS_BRANCH" == "master" ]]; then docker tag enteam/enbase:$TRAVIS_BUILD_ID enteam/enbase; fi
+        - docker build -t enteam/enbase:build-$TRAVIS_BUILD_ID .
+        - if [[ "$TRAVIS_BRANCH" == "master" ]]; then docker tag enteam/enbase:build-$TRAVIS_BUILD_ID enteam/enbase; fi
         - docker push enteam/enbase
         - if [[ "$TRAVIS_BRANCH" == "master" ]]; then docker push enteam/enbase; fi
       if: type = push AND repo = enteam/enbase
