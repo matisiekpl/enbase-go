@@ -24,4 +24,4 @@ jobs:
         - if [[ "$TRAVIS_BRANCH" == "master" ]]; then docker tag enteam/enbase:$TRAVIS_BUILD_ID enteam/enbase; fi
         - docker push enteam/enbase
         - if [[ "$TRAVIS_BRANCH" == "master" ]]; then docker push enteam/enbase; fi
-      if: branch = master AND type = push AND enteam/enbase
+      if: type = push AND enteam/enbase
