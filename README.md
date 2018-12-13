@@ -7,7 +7,7 @@
 [![](https://img.shields.io/github/license/enteam/enbase.svg)](https://github.com/enteam/enbase)
 [![](https://img.shields.io/github/issues/enteam/enbase.svg)](https://github.com/enteam/enbase)
 
-> # Open Source NoSQL Realtime Database
+# Open Source NoSQL Realtime Database
 
 ## :star: Features
 - [x] Fast & realtime
