@@ -24,3 +24,8 @@
 $ wget https://raw.githubusercontent.com/enteam/enbase/readme/docker-compose.yml
 $ docker-compose up -d
 ```
+### Powered by Kubernetes and Helm
+```
+$ helm repo add enbase https://enteam.github.io/enbase/charts
+$ helm install enbase/enbase
+```
