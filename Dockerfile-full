@@ -9,28 +9,6 @@ RUN $GOPATH/bin/dep ensure
 RUN go build -ldflags "-linkmode external -extldflags -static" enbase
 
 FROM rabbitmq:3.7
-RUN rabbitmq-plugins enable --offline rabbitmq_management
-RUN set -eux; \
-	erl -noinput -eval ' \
-		{ ok, AdminBin } = zip:foldl(fun(FileInArchive, GetInfo, GetBin, Acc) -> \
-			case Acc of \
-				"" -> \
-					case lists:suffix("/rabbitmqadmin", FileInArchive) of \
-						true -> GetBin(); \
-						false -> Acc \
-					end; \
-				_ -> Acc \
-			end \
-		end, "", init:get_plain_arguments()), \
-		io:format("~s", [ AdminBin ]), \
-		init:stop(). \
-	' -- /plugins/rabbitmq_management-*.ez > /usr/local/bin/rabbitmqadmin; \
-	[ -s /usr/local/bin/rabbitmqadmin ]; \
-	chmod +x /usr/local/bin/rabbitmqadmin; \
-	add-apt-repository ppa:jonathonf/python-3.6; \
-	apt-get update; \
-	apt-get install python3.6; \
-	rabbitmqadmin --version
 RUN \
   apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10 && \
   echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' > /etc/apt/sources.list.d/mongodb.list && \
