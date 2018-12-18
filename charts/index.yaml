@@ -3,11 +3,61 @@ entries:
   enbase:
   - apiVersion: v1
     appVersion: "1.0"
-    created: 2018-12-12T20:13:57.4695779+01:00
+    created: 2018-12-14T20:25:32.8574435+01:00
     description: A Helm chart for Enbase
-    digest: 50e6923793bc52763bbb9338dd0c97d80a6f3c2ccceea60db6160b88c1bffd6b
+    digest: d7279e45565d9be4d29fa2f407302ab2ce417ffb519349866d16cbdabd08fa72
     name: enbase
     urls:
     - https://raw.githubusercontent.com/enteam/enbase/master/charts/enbase-0.1.0.tgz
     version: 0.1.0
-generated: 2018-12-12T20:13:57.4675789+01:00
+  mongodb:
+  - appVersion: 4.0.3
+    created: 2018-12-14T20:25:32.8584195+01:00
+    description: NoSQL document-oriented database that stores JSON-like documents
+      with dynamic schemas, simplifying the integration of data in content-driven
+      applications.
+    digest: 0fb88635e0eebe84e7915b3dbe2de7904356a6685db3af8759986881ca10bd3f
+    engine: gotpl
+    home: https://mongodb.org
+    icon: https://bitnami.com/assets/stacks/mongodb/img/mongodb-stack-220x234.png
+    keywords:
+    - mongodb
+    - database
+    - nosql
+    - cluster
+    - replicaset
+    - replication
+    maintainers:
+    - email: containers@bitnami.com
+      name: Bitnami
+    name: mongodb
+    sources:
+    - https://github.com/bitnami/bitnami-docker-mongodb
+    urls:
+    - https://raw.githubusercontent.com/enteam/enbase/master/charts/mongodb-4.10.1.tgz
+    version: 4.10.1
+  rabbitmq:
+  - appVersion: 3.7.9
+    created: 2018-12-14T20:25:32.8603699+01:00
+    description: Open source message broker software that implements the Advanced
+      Message Queuing Protocol (AMQP)
+    digest: 6dbcd567d3256aef821521f43ff292d04fe4720e26b5856eaed6c59f7d363249
+    engine: gotpl
+    home: https://www.rabbitmq.com
+    icon: https://bitnami.com/assets/stacks/rabbitmq/img/rabbitmq-stack-220x234.png
+    keywords:
+    - rabbitmq
+    - message queue
+    - AMQP
+    maintainers:
+    - email: containers@bitnami.com
+      name: Bitnami
+    - email: cedric@desaintmartin.fr
+      name: desaintmartin
+    name: rabbitmq
+    sources:
+    - https://github.com/bitnami/bitnami-docker-rabbitmq
+    urls:
+    - https://raw.githubusercontent.com/enteam/enbase/master/charts/rabbitmq-4.0.1.tgz
+    version: 4.0.1
+generated: 2018-12-14T20:25:32.8545178+01:00
