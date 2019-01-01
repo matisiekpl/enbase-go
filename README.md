@@ -21,7 +21,7 @@
 ## :rocket: Quick deployment
 ### Powered by docker compose :whale:
 ```
-$ wget https://raw.githubusercontent.com/enteam/enbase/readme/docker-compose.yml
+$ wget https://raw.githubusercontent.com/enteam/enbase/master/docker-compose.yml
 $ docker-compose up -d
 ```
 ### Powered by Kubernetes and Helm
