@@ -6,6 +6,8 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 	"net/http/httputil"
 	"net/url"
+	"net/http"
+	"crypto/tls"
 )
 
 type response struct {
@@ -33,6 +35,7 @@ func bootstrapRestServer() {
 }
 
 func handleRestRoutes() {
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	rest.Use(middleware.CORS())
 
 	dashboard, _ := url.Parse("https://enbase-dashboard.netlify.com")
