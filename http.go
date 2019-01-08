@@ -4,6 +4,8 @@ import (
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"gopkg.in/go-playground/validator.v9"
+	"net/http/httputil"
+	"net/url"
 )
 
 type response struct {
@@ -32,6 +34,15 @@ func bootstrapRestServer() {
 
 func handleRestRoutes() {
 	rest.Use(middleware.CORS())
+
+	dashboard, _ := url.Parse("https://enbase-dashboard.netlify.com")
+	dashboardProxy := httputil.NewSingleHostReverseProxy(dashboard)
+	rest.GET("/*", func(context echo.Context) error {
+		context.Request().Host = "enbase-dashboard.netlify.com"
+		dashboardProxy.ServeHTTP(context.Response().Writer, context.Request())
+		return nil
+	})
+
 	rest.POST("/auth/session", loginController)
 	rest.POST("/auth/user", registerController)
 	rest.POST("/system/projects", createProjectController)
