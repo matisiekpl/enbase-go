@@ -1,13 +1,13 @@
 package main
 
 import (
+	"crypto/tls"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"gopkg.in/go-playground/validator.v9"
+	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"net/http"
-	"crypto/tls"
 )
 
 type response struct {
