@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/globalsign/mgo/bson"
 	"github.com/labstack/echo"
+	"math/rand"
 	"net/http"
 )
 
@@ -18,6 +19,7 @@ type database struct {
 	Updates     int           `json:"updates"`
 	Deletes     int           `json:"deletes"`
 	Url         string        `json:"url"`
+	MasterKey   string        `json:"master_key"`
 }
 
 func createDatabaseController(c echo.Context) error {
@@ -43,6 +45,7 @@ func createDatabaseController(c echo.Context) error {
 	database.Creates = 0
 	database.Updates = 0
 	database.Deletes = 0
+	database.MasterKey = randStringRunes(16)
 	err = c.Bind(database)
 	if err != nil {
 		_ = c.JSON(http.StatusBadRequest, response{
@@ -217,4 +220,14 @@ func deleteDatabaseController(c echo.Context) error {
 		Data:    nil,
 	})
 	return nil
+}
+
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func randStringRunes(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
 }
