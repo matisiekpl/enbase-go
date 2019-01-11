@@ -45,13 +45,15 @@ func createResourceController(c echo.Context) error {
 		})
 		return nil
 	}
-	if !permit(database, collectionName, user, "create", resource, "") || (limited && database.Creates <= 0) {
-		_ = c.JSON(http.StatusBadRequest, response{
-			Success: false,
-			Message: "Access denied",
-			Data:    nil,
-		})
-		return nil
+	if c.Request().Header.Get("X-master-key") != database.MasterKey {
+		if !permit(database, collectionName, user, "create", resource, "") || (limited && database.Creates <= 0) {
+			_ = c.JSON(http.StatusBadRequest, response{
+				Success: false,
+				Message: "Access denied",
+				Data:    nil,
+			})
+			return nil
+		}
 	}
 	if database.Url == "" {
 		err = databaseSession.DB(database.Id.Hex()).C(collectionName).Insert(resource)
@@ -126,17 +128,19 @@ func readResourcesController(c echo.Context) error {
 	}
 	resourcesCount := 0
 	for resourcesCount < resourcesLimit && iter.Next(&resource) {
-		if permit(database, collectionName, user, "read", resource, "") && !(limited && database.Reads <= 0) {
-			resourcesSkip--
-			if resourcesSkip < 0 {
-				if limited {
-					database.Reads--
+		if c.Request().Header.Get("X-master-key") != database.MasterKey {
+			if permit(database, collectionName, user, "read", resource, "") && !(limited && database.Reads <= 0) {
+				resourcesSkip--
+				if resourcesSkip < 0 {
+					if limited {
+						database.Reads--
+					}
+					query := echo.Map{}
+					query["_id"] = database.Id
+					_ = applicationDatabase.C("databases").Update(query, database)
+					resources = append(resources, resource)
+					resourcesCount++
 				}
-				query := echo.Map{}
-				query["_id"] = database.Id
-				_ = applicationDatabase.C("databases").Update(query, database)
-				resources = append(resources, resource)
-				resourcesCount++
 			}
 		}
 	}
@@ -173,13 +177,15 @@ func updateResourceController(c echo.Context) error {
 		})
 		return nil
 	}
-	if !permit(database, collectionName, user, "update", resource, "") || (limited && database.Updates <= 0) {
-		_ = c.JSON(http.StatusBadRequest, response{
-			Success: false,
-			Message: "Access denied",
-			Data:    nil,
-		})
-		return nil
+	if c.Request().Header.Get("X-master-key") != database.MasterKey {
+		if !permit(database, collectionName, user, "update", resource, "") || (limited && database.Updates <= 0) {
+			_ = c.JSON(http.StatusBadRequest, response{
+				Success: false,
+				Message: "Access denied",
+				Data:    nil,
+			})
+			return nil
+		}
 	}
 	query := echo.Map{}
 	query["_id"] = bson.ObjectIdHex(c.Param("id"))
@@ -234,13 +240,15 @@ func deleteResourceController(c echo.Context) error {
 		})
 		return nil
 	}
-	if !permit(database, collectionName, user, "delete", nil, "") || (limited && database.Deletes <= 0) {
-		_ = c.JSON(http.StatusBadRequest, response{
-			Success: false,
-			Message: "Access denied",
-			Data:    nil,
-		})
-		return nil
+	if c.Request().Header.Get("X-master-key") != database.MasterKey {
+		if !permit(database, collectionName, user, "delete", nil, "") || (limited && database.Deletes <= 0) {
+			_ = c.JSON(http.StatusBadRequest, response{
+				Success: false,
+				Message: "Access denied",
+				Data:    nil,
+			})
+			return nil
+		}
 	}
 	query := echo.Map{}
 	query["_id"] = bson.ObjectIdHex(c.Param("id"))
@@ -290,9 +298,11 @@ func changesController(c echo.Context) error {
 			if change.DatabaseId == c.Param("database") && change.CollectionName == c.Param("collection") && change.Action == c.Param("action") {
 				var database database
 				_ = applicationDatabase.C("databases").FindId(bson.ObjectIdHex(c.Param("database"))).One(&database)
-				if permit(database, c.Param("collection"), nil, change.Action, change.Document, change.DocumentId) {
-					payload, _ := json.Marshal(change)
-					_ = websocket.Message.Send(ws, []byte(payload))
+				if c.Request().Header.Get("X-master-key") != database.MasterKey {
+					if permit(database, c.Param("collection"), nil, change.Action, change.Document, change.DocumentId) {
+						payload, _ := json.Marshal(change)
+						_ = websocket.Message.Send(ws, []byte(payload))
+					}
 				}
 			}
 		}
