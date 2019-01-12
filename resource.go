@@ -128,19 +128,17 @@ func readResourcesController(c echo.Context) error {
 	}
 	resourcesCount := 0
 	for resourcesCount < resourcesLimit && iter.Next(&resource) {
-		if c.Request().Header.Get("X-master-key") != database.MasterKey {
-			if permit(database, collectionName, user, "read", resource, "") && !(limited && database.Reads <= 0) {
-				resourcesSkip--
-				if resourcesSkip < 0 {
-					if limited {
-						database.Reads--
-					}
-					query := echo.Map{}
-					query["_id"] = database.Id
-					_ = applicationDatabase.C("databases").Update(query, database)
-					resources = append(resources, resource)
-					resourcesCount++
+		if c.Request().Header.Get("X-master-key") == database.MasterKey || (permit(database, collectionName, user, "read", resource, "") && !(limited && database.Reads <= 0)) {
+			resourcesSkip--
+			if resourcesSkip < 0 {
+				if limited {
+					database.Reads--
 				}
+				query := echo.Map{}
+				query["_id"] = database.Id
+				_ = applicationDatabase.C("databases").Update(query, database)
+				resources = append(resources, resource)
+				resourcesCount++
 			}
 		}
 	}
