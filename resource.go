@@ -296,14 +296,33 @@ func changesController(c echo.Context) error {
 			if change.DatabaseId == c.Param("database") && change.CollectionName == c.Param("collection") && change.Action == c.Param("action") {
 				var database database
 				_ = applicationDatabase.C("databases").FindId(bson.ObjectIdHex(c.Param("database"))).One(&database)
-				if c.Request().Header.Get("X-master-key") != database.MasterKey {
-					if permit(database, c.Param("collection"), nil, "stream", change.Document, change.DocumentId) {
+				queryJson, _ := qson.ToJSON(c.QueryString())
+				var query echo.Map
+				_ = json.Unmarshal(queryJson, &query)
+				query["_id"] = change.DocumentId
+				accessible := false
+				if database.Url == "" {
+					count, _ := databaseSession.DB(database.Id.Hex()).C(change.CollectionName).Find(query).Count()
+					if count > 0 {
+						accessible = true
+					}
+				} else {
+					session, _ := mgo.Dial(database.Url)
+					count, _ := session.DB("").C(change.CollectionName).Find(query).Count()
+					if count > 0 {
+						accessible = true
+					}
+				}
+				if accessible {
+					if c.Request().Header.Get("X-master-key") != database.MasterKey {
+						if permit(database, c.Param("collection"), nil, "stream", change.Document, change.DocumentId) {
+							payload, _ := json.Marshal(change)
+							_ = websocket.Message.Send(ws, []byte(payload))
+						}
+					} else {
 						payload, _ := json.Marshal(change)
 						_ = websocket.Message.Send(ws, []byte(payload))
 					}
-				} else {
-					payload, _ := json.Marshal(change)
-					_ = websocket.Message.Send(ws, []byte(payload))
 				}
 			}
 		}
