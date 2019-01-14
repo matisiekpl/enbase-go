@@ -297,10 +297,13 @@ func changesController(c echo.Context) error {
 				var database database
 				_ = applicationDatabase.C("databases").FindId(bson.ObjectIdHex(c.Param("database"))).One(&database)
 				if c.Request().Header.Get("X-master-key") != database.MasterKey {
-					if permit(database, c.Param("collection"), nil, change.Action, change.Document, change.DocumentId) {
+					if permit(database, c.Param("collection"), nil, "stream", change.Document, change.DocumentId) {
 						payload, _ := json.Marshal(change)
 						_ = websocket.Message.Send(ws, []byte(payload))
 					}
+				} else {
+					payload, _ := json.Marshal(change)
+					_ = websocket.Message.Send(ws, []byte(payload))
 				}
 			}
 		}
