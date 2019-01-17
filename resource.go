@@ -299,6 +299,9 @@ func changesController(c echo.Context) error {
 				queryJson, _ := qson.ToJSON(c.QueryString())
 				var query echo.Map
 				_ = json.Unmarshal(queryJson, &query)
+				if query == nil {
+					query = echo.Map{}
+				}
 				query["_id"] = change.DocumentId
 				accessible := false
 				if database.Url == "" {
