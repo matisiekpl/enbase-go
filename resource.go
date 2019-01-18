@@ -35,7 +35,7 @@ func createResourceController(c echo.Context) error {
 		})
 		return nil
 	}
-	var resource interface{}
+	var resource echo.Map
 	err := c.Bind(&resource)
 	if err != nil {
 		_ = c.JSON(http.StatusBadRequest, response{
@@ -55,6 +55,8 @@ func createResourceController(c echo.Context) error {
 			return nil
 		}
 	}
+	id := bson.NewObjectId()
+	resource["_id"] = id
 	if database.Url == "" {
 		err = databaseSession.DB(database.Id.Hex()).C(collectionName).Insert(resource)
 	} else {
@@ -79,7 +81,7 @@ func createResourceController(c echo.Context) error {
 		DatabaseName:   database.Name,
 		CollectionName: collectionName,
 		Document:       resource,
-		DocumentId:     "",
+		DocumentId:     resource["_id"].(bson.ObjectId).Hex(),
 		Action:         "create",
 		DatabaseId:     databaseId,
 	})
@@ -302,16 +304,16 @@ func changesController(c echo.Context) error {
 				if query == nil {
 					query = echo.Map{}
 				}
-				query["_id"] = change.DocumentId
+				query["_id"] = bson.ObjectIdHex(change.DocumentId)
 				accessible := false
 				if database.Url == "" {
-					count, _ := databaseSession.DB(database.Id.Hex()).C(change.CollectionName).Find(query).Count()
+					count, _ := databaseSession.DB(database.Id.Hex()).C(change.CollectionName).Find(&query).Count()
 					if count > 0 {
 						accessible = true
 					}
 				} else {
 					session, _ := mgo.Dial(database.Url)
-					count, _ := session.DB("").C(change.CollectionName).Find(query).Count()
+					count, _ := session.DB("").C(change.CollectionName).Find(&query).Count()
 					if count > 0 {
 						accessible = true
 					}
