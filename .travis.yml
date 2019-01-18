@@ -9,6 +9,7 @@ before_install:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+install: false
 jobs:
   include:
     - stage: test
@@ -27,9 +28,6 @@ jobs:
         - if [[ "$TRAVIS_BRANCH" == "master" ]]; then docker tag enteam/enbase:build-$TRAVIS_BUILD_ID-full enteam/enbase:full; fi
         - docker push enteam/enbase:build-$TRAVIS_BUILD_ID-full
         - if [[ "$TRAVIS_BRANCH" == "master" ]]; then docker push enteam/enbase:full; fi
-      if: type = push AND repo = enteam/enbase
-    - stage: publish
-      script:
         - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get | bash
         - cd charts/enbase
         - helm init --client-only
@@ -38,6 +36,7 @@ jobs:
         - helm repo index charts
         - cd ..
         - cd ..
+      if: type = push AND repo = enteam/enbase
       deploy:
         provider: pages
         skip-cleanup: true
@@ -47,5 +46,3 @@ jobs:
         keep-history: true
         on:
           branch: master
-      if: type = push AND repo = enteam/enbase AND branch = master
-#      if: type = push AND repo = enteam/enbase
