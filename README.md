@@ -1,6 +1,14 @@
 <p align="center"><img width="30%" src="images/logo.png"/></p>
 
-<h1 align="center">Enbase ⚡️</h1>
+<h1 align="center">Enbase :leaves:</h1>
+
+<h4 align="center">
+  ⚡️ High-availability distributed open source serverless NoSQL realtime database 🐰
+</h4>
+
+<p align="center">
+  Build powerful realtime cross-platform apps with high-availability backend solution 
+</p>
 
 <p align="center">
   
