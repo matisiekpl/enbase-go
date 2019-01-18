@@ -3,16 +3,16 @@ entries:
   enbase:
   - apiVersion: v1
     appVersion: "1.0"
-    created: 2018-12-14T20:25:32.8574435+01:00
+    created: 2019-01-18T13:25:29.0069247+01:00
     description: A Helm chart for Enbase
     digest: d7279e45565d9be4d29fa2f407302ab2ce417ffb519349866d16cbdabd08fa72
     name: enbase
     urls:
-    - https://raw.githubusercontent.com/enteam/enbase/master/charts/enbase-0.1.0.tgz
+    - enbase-0.1.0.tgz
     version: 0.1.0
   mongodb:
   - appVersion: 4.0.3
-    created: 2018-12-14T20:25:32.8584195+01:00
+    created: 2019-01-18T13:25:29.0079244+01:00
     description: NoSQL document-oriented database that stores JSON-like documents
       with dynamic schemas, simplifying the integration of data in content-driven
       applications.
@@ -34,11 +34,11 @@ entries:
     sources:
     - https://github.com/bitnami/bitnami-docker-mongodb
     urls:
-    - https://raw.githubusercontent.com/enteam/enbase/master/charts/mongodb-4.10.1.tgz
+    - mongodb-4.10.1.tgz
     version: 4.10.1
   rabbitmq:
   - appVersion: 3.7.9
-    created: 2018-12-14T20:25:32.8603699+01:00
+    created: 2019-01-18T13:25:29.0089241+01:00
     description: Open source message broker software that implements the Advanced
       Message Queuing Protocol (AMQP)
     digest: 6dbcd567d3256aef821521f43ff292d04fe4720e26b5856eaed6c59f7d363249
@@ -58,6 +58,6 @@ entries:
     sources:
     - https://github.com/bitnami/bitnami-docker-rabbitmq
     urls:
-    - https://raw.githubusercontent.com/enteam/enbase/master/charts/rabbitmq-4.0.1.tgz
+    - rabbitmq-4.0.1.tgz
     version: 4.0.1
-generated: 2018-12-14T20:25:32.8545178+01:00
+generated: 2019-01-18T13:25:29.002926+01:00
