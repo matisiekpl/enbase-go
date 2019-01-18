@@ -20,8 +20,14 @@
   <img src="https://img.shields.io/docker/stars/enteam/enbase.svg">
 </a>
 
-[![](https://img.shields.io/github/license/enteam/enbase.svg)](https://github.com/enteam/enbase)
-[![](https://img.shields.io/github/issues/enteam/enbase.svg)](https://github.com/enteam/enbase)
+<a href="https://github.com/enteam/enbase">
+  <img src="https://img.shields.io/github/license/enteam/enbase.svg">
+</a>
+
+<a href="https://github.com/enteam/enbase">
+  <img src="https://img.shields.io/github/issues/enteam/enbase.svg">
+</a>
+
 </p>
 
 # Open Source NoSQL Realtime Database
