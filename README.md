@@ -38,16 +38,14 @@
 
 </p>
 
-# Open Source NoSQL Realtime Database
-
-## :star: Features
-- [x] Fast & realtime
-- [x] Servless
-- [x] Powered by GoLang
-- [x] Compatible with MongoDB and CosmosDB
-- [x] Scalar horizontally
-- [x] Powered by docker
-- [x] Kubernetes compatible
+|   | Enbase |
+| - | ------------ |
+| ⚡️ | **Launch your database in minutes** no matter how big is your cluster |
+| 📈 | **Highly scalable** from hundreds to tens of thousands of records |
+| ✨ | **Reactive** Built-in websocket support  |
+| 📱 | **Cross-platform** iOS, Android, and the web |
+| ⏱ | **Fast** Powered by Go |
+| 🔗 | **NoSQL** - store data like you want |
 
 ## :rocket: Quick deployment
 ### Powered by docker compose :whale:
