@@ -47,14 +47,9 @@
 | ⏱ | **Fast** Powered by Go |
 | 🔗 | **NoSQL** - store data like you want |
 
-## :rocket: Quick deployment
-### Powered by docker compose :whale:
+### :rocket: Quick deployment
+##### with docker compose :whale:
 ```
 $ wget https://raw.githubusercontent.com/enteam/enbase/master/docker-compose.yml
 $ docker-compose up -d
-```
-### Powered by Kubernetes and Helm
-```
-$ helm repo add enbase https://enteam.github.io/enbase/charts
-$ helm install enbase/enbase
 ```
