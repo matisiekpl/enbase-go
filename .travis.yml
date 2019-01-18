@@ -30,6 +30,7 @@ jobs:
       if: type = push AND repo = enteam/enbase
     - stage: publish
       script:
+        - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get | bash
         - cd charts/enbase
         - helm dep update
         - helm package . -d charts
