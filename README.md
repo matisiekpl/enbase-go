@@ -63,6 +63,40 @@ $ helm repo add enteam https://raw.githubusercontent.com/enteam/charts/gh-pages
 $ helm install enteam/enbase
 ```
 
+## ⚡️ Your app setup
+```javascript
+const Enbase = require('enbase-js-sdk');
+const database = new Enbase({
+	databaseId: '<enbase-database-id>',
+	databaseUrl: 'https://<enbase-address>',
+	websocketUrl: 'https://<enbase-address>'
+});
+
+// Create new document in 'cats' collection
+database.collection('cats').create({
+  name: 'Kitty',
+  age: 2
+})
+
+// Read documents from 'cats' collection, where age is equal to 2
+database.collection('cats').read({
+  age: 2
+})
+
+// Update new document in 'cats' collection
+database.collection('cats').update('<id>', {
+  age: 3
+})
+
+// Delete document in 'cats' collection
+database.collection('cats').delete('<id>')
+
+// Stream all documents from 'cats' collection, where age is equal to 2, in realtime
+database.collection('cats').stream({
+  age: 3
+}, (cats) => console.log(cats))
+```
+
 ## Contributing
 
 If you have comments, complaints, or ideas for improvements, feel free to open an issue or a pull request!
