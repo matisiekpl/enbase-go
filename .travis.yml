@@ -28,3 +28,22 @@ jobs:
         - docker push enteam/enbase:build-$TRAVIS_BUILD_ID-full
         - if [[ "$TRAVIS_BRANCH" == "master" ]]; then docker push enteam/enbase:full; fi
       if: type = push AND repo = enteam/enbase
+    - stage: publish
+      script:
+        - cd charts/enbase
+        - helm dep update
+        - helm package . -d charts
+        - helm repo index charts
+        - cd ..
+        - cd ..
+      deploy:
+        provider: pages
+        skip-cleanup: true
+        github-token: $GITHUB_TOKEN
+        repo: enteam/charts
+        local-dir: charts/enbase/charts
+        keep-history: true
+        on:
+          branch: master
+#      if: type = push AND repo = enteam/enbase AND branch = master
+      if: type = push AND repo = enteam/enbase

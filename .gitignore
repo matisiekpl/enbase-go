@@ -13,3 +13,4 @@
 
 .idea
 vendor/
+charts/enbase/charts/**
