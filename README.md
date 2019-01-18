@@ -62,3 +62,9 @@ $ docker-compose up -d
 $ helm repo add enteam https://raw.githubusercontent.com/enteam/charts/gh-pages
 $ helm install enteam/enbase
 ```
+
+## Contributing
+
+If you have comments, complaints, or ideas for improvements, feel free to open an issue or a pull request!
+
+If you want to contribute, see [Contributing guide](./CONTRIBUTING.md) for details about project setup, testing, etc. If you make a non-trivial contribution, email me, and I'll send you a nice :rabbit: sticker!
