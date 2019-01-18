@@ -53,3 +53,8 @@
 $ wget https://raw.githubusercontent.com/enteam/enbase/master/docker-compose.yml
 $ docker-compose up -d
 ```
+##### with Helm
+```
+$ helm repo add enteam https://raw.githubusercontent.com/enteam/charts/gh-pages
+$ helm install enteam/enbase
+```
