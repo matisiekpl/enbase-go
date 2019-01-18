@@ -47,5 +47,5 @@ jobs:
         keep-history: true
         on:
           branch: master
-#      if: type = push AND repo = enteam/enbase AND branch = master
-      if: type = push AND repo = enteam/enbase
+      if: type = push AND repo = enteam/enbase AND branch = master
+#      if: type = push AND repo = enteam/enbase
