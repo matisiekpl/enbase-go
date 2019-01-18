@@ -25,3 +25,5 @@ affinity: {}
 
 mongo: localhost:27017
 rabbit: amqp://localhost:5672
+rabbitmq.username: enbase
+rabbitmq.password: enbase
