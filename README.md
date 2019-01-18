@@ -47,6 +47,10 @@
 | ⏱ | **Fast** Powered by Go |
 | 🔗 | **NoSQL** - store data like you want |
 
+## Why
+
+Creating reactive apps is the future. You can right now start building your high-performance and highly-avaiable mobile or web app with enbase. Enbase is a solution thats automates your backend functions and packs its into data access layer with powerful access permissions and realtime subscriptions
+
 ## :rocket: Quick deployment
 #### with docker compose :whale:
 ```
