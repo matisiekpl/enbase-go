@@ -37,9 +37,9 @@ spec:
               {{/*port: 1323*/}}
           env:
             - name: MONGO
-              value: {{ .Values.mongo }}
+              value: {{ .Release.Name }}"-mongodb/enbase"
             - name: RABBIT
-              value: {{ .Values.rabbit }}
+              value: {{ .Release.Name }}"-rabbitmq"
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
