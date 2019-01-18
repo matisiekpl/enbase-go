@@ -2,12 +2,27 @@
 
 <h1 align="center">Enbase ⚡️</h1>
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/enteam/enbase)](https://goreportcard.com/report/github.com/enteam/enbase)
-[![Build Status](https://travis-ci.com/enteam/enbase.svg?branch=master)](https://travis-ci.com/enteam/enbase)
-[![](https://img.shields.io/docker/pulls/enteam/enbase.svg)](https://hub.docker.com/r/enteam/enbase/)
-[![](https://img.shields.io/docker/stars/enteam/enbase.svg)](https://hub.docker.com/r/enteam/enbase/)
+<p align="center">
+  
+<a href="https://goreportcard.com/report/github.com/enteam/enbase">
+  <img src="https://goreportcard.com/badge/github.com/enteam/enbase">
+</a>
+
+<a href="https://travis-ci.com/enteam/enbase">
+  <img src="https://travis-ci.com/enteam/enbase.svg?branch=master">
+</a>
+
+<a href="https://hub.docker.com/r/enteam/enbase/">
+  <img src="https://img.shields.io/docker/pulls/enteam/enbase.svg">
+</a>
+
+<a href="https://hub.docker.com/r/enteam/enbase/">
+  <img src="https://img.shields.io/docker/stars/enteam/enbase.svg">
+</a>
+
 [![](https://img.shields.io/github/license/enteam/enbase.svg)](https://github.com/enteam/enbase)
 [![](https://img.shields.io/github/issues/enteam/enbase.svg)](https://github.com/enteam/enbase)
+</p>
 
 # Open Source NoSQL Realtime Database
 
