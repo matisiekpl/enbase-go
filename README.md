@@ -97,6 +97,15 @@ database.collection('cats').stream({
 }, (cats) => console.log(cats))
 ```
 
+## Dashboard
+
+Of course, you can manage your enbase database resources with [enbase-dashboard](https://github.com/enteam/enbase-dashboard). Just access enbase address with your favourite browser and manage create your next awesome app 
+
+<div>
+<img style="float:left;" width="48%" src="https://raw.githubusercontent.com/enteam/enbase/readme/images/dashboard-screen-1.png">
+<img style="float:left;" width="48%" src="https://raw.githubusercontent.com/enteam/enbase/readme/images/dashboard-screen-2.png">
+</div>
+
 ## Contributing
 
 If you have comments, complaints, or ideas for improvements, feel free to open an issue or a pull request!
