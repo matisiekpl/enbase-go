@@ -39,7 +39,7 @@ spec:
             - name: MONGO
               value: {{ .Release.Name }}-mongodb/enbase
             - name: RABBIT
-              value: {{ .Release.Name }}-rabbitmq
+              value: amqp://enbase:enbase@{{ .Release.Name }}-rabbitmq
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
