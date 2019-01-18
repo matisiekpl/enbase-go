@@ -68,3 +68,11 @@ $ helm install enteam/enbase
 If you have comments, complaints, or ideas for improvements, feel free to open an issue or a pull request!
 
 If you want to contribute, see [Contributing guide](./CONTRIBUTING.md) for details about project setup, testing, etc. If you make a non-trivial contribution, email me, and I'll send you a nice :rabbit: sticker!
+
+## Author and license
+
+**Enbase** was created by [@MatisiekPL](https://github.com/MatisiekPL). Main author and maintainer is [Mateusz Woźniak](https://github.com/MatisiekPL).
+
+**Contributors:** [@MatisiekPL](https://github.com/MatisiekPL), [@Radek-Wawrzyk](https://github.com/Radek-Wawrzyk)
+
+Enbase is available under the MIT license. See the [LICENSE file](./LICENSE) for more info.
