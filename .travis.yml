@@ -32,6 +32,7 @@ jobs:
       script:
         - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get | bash
         - cd charts/enbase
+        - helm init --client-only
         - helm dep update
         - helm package . -d charts
         - helm repo index charts
