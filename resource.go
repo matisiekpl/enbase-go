@@ -334,3 +334,82 @@ func changesController(c echo.Context) error {
 	}).ServeHTTP(c.Response(), c.Request())
 	return nil
 }
+
+type busRequest struct {
+	DatabaseId     string   `json:"database_id"`
+	CollectionName string   `json:"collection_name"`
+	Action         string   `json:"action"`
+	Document       echo.Map `json:"document"`
+	DocumentId     string   `json:"document_id"`
+	Token          string   `json:"token"`
+	Skip           int      `json:"skip"`
+	Limit          int      `json:"limit"`
+	RequestId      string   `json:"request_id"`
+	MasterKey      string   `json:"master_key"`
+	Done           bool     `json:"done"`
+	Err            string   `json:"err"`
+}
+
+func crudBusController(c echo.Context) error {
+	websocket.Handler(func(ws *websocket.Conn) {
+		defer ws.Close()
+		for {
+			msg := ""
+			err := websocket.Message.Receive(ws, &msg)
+			if err == nil && msg != "" {
+				var request busRequest
+				_ = json.Unmarshal([]byte(msg), &request)
+				switch request.Action {
+				case "create":
+					databaseId := request.DatabaseId
+					collectionName := request.CollectionName
+					var database database
+					user, _ := getUserId(c)
+					if err := applicationDatabase.C("databases").Find(echo.Map{
+						"_id": bson.ObjectIdHex(databaseId),
+					}).One(&database); err != nil {
+						request.Done = false
+						request.Err = "Cannot find database"
+					}
+					if request.MasterKey != database.MasterKey {
+						if !permit(database, collectionName, user, "create", request.Document, "") || (limited && database.Creates <= 0) {
+							request.Done = false
+							request.Err = "Access denied"
+						}
+					}
+					id := bson.NewObjectId()
+					request.Document["_id"] = id
+					if database.Url == "" {
+						err = databaseSession.DB(database.Id.Hex()).C(collectionName).Insert(request.Document)
+					} else {
+						session, _ := mgo.Dial(database.Url)
+						err = session.DB("").C(collectionName).Insert(request.Document)
+					}
+					if err != nil {
+						request.Done = false
+						request.Err = "Cannot insert resource to database"
+					}
+					if limited {
+						database.Creates--
+					}
+					query := echo.Map{}
+					query["_id"] = database.Id
+					_ = applicationDatabase.C("databases").Update(query, database)
+					_ = publishChange(resourceChange{
+						DatabaseName:   database.Name,
+						CollectionName: collectionName,
+						Document:       request.Document,
+						DocumentId:     request.Document["_id"].(bson.ObjectId).Hex(),
+						Action:         "create",
+						DatabaseId:     databaseId,
+					})
+					request.Done = true
+					request.Err = "Resource successfully inserted"
+					requestResponse, _ := json.Marshal(request)
+					_ = websocket.Message.Send(ws, string(requestResponse))
+				}
+			}
+		}
+	}).ServeHTTP(c.Response(), c.Request())
+	return nil
+}
