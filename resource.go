@@ -241,7 +241,7 @@ func deleteResourceController(c echo.Context) error {
 		return nil
 	}
 	if c.Request().Header.Get("X-master-key") != database.MasterKey {
-		if !permit(database, collectionName, user, "delete", nil, "") || (limited && database.Deletes <= 0) {
+		if !permit(database, collectionName, user, "delete", nil, c.Param("id")) || (limited && database.Deletes <= 0) {
 			_ = c.JSON(http.StatusBadRequest, response{
 				Success: false,
 				Message: "Access denied",
@@ -405,6 +405,101 @@ func crudBusController(c echo.Context) error {
 					})
 					request.Done = true
 					request.Err = "Resource successfully inserted"
+					requestResponse, _ := json.Marshal(request)
+					_ = websocket.Message.Send(ws, string(requestResponse))
+				case "update":
+					databaseId := request.DatabaseId
+					collectionName := request.CollectionName
+					var database database
+					user, _ := getUserId(c)
+					if err := applicationDatabase.C("databases").Find(echo.Map{
+						"_id": bson.ObjectIdHex(databaseId),
+					}).One(&database); err != nil {
+						request.Done = false
+						request.Err = "Cannot find database"
+					}
+					if c.Request().Header.Get("X-master-key") != database.MasterKey {
+						if !permit(database, collectionName, user, "update", request.Document, "") || (limited && database.Updates <= 0) {
+							request.Done = false
+							request.Err = "Access denied"
+						}
+					}
+					query := echo.Map{}
+					query["_id"] = bson.ObjectIdHex(c.Param("id"))
+					if database.Url == "" {
+						err = databaseSession.DB(database.Id.Hex()).C(collectionName).Update(query, request.Document)
+					} else {
+						session, _ := mgo.Dial(database.Url)
+						err = session.DB("").C(collectionName).Update(query, request.Document)
+					}
+					if err != nil {
+						request.Done = false
+						request.Err = "Cannot update resource"
+					}
+					if limited {
+						database.Updates--
+					}
+					query = echo.Map{}
+					query["_id"] = database.Id
+					_ = applicationDatabase.C("databases").Update(query, database)
+					_ = publishChange(resourceChange{
+						DatabaseName:   database.Name,
+						CollectionName: collectionName,
+						DocumentId:     c.Param("id"),
+						Document:       request.Document,
+						Action:         "update",
+						DatabaseId:     databaseId,
+					})
+					request.Done = true
+					request.Err = "Resource successfully updated"
+					requestResponse, _ := json.Marshal(request)
+					_ = websocket.Message.Send(ws, string(requestResponse))
+				case "delete":
+					databaseId := request.DatabaseId
+					collectionName := request.CollectionName
+					var database database
+					user, _ := getUserId(c)
+					if err := applicationDatabase.C("databases").Find(echo.Map{
+						"_id": bson.ObjectIdHex(databaseId),
+					}).One(&database); err != nil {
+						request.Done = false
+						request.Err = "Cannot find database"
+					}
+					if c.Request().Header.Get("X-master-key") != database.MasterKey {
+						if !permit(database, collectionName, user, "delete", request.Document, request.DocumentId) || (limited && database.Deletes <= 0) {
+							request.Done = false
+							request.Err = "Access denied"
+						}
+					}
+					query := echo.Map{}
+					query["_id"] = bson.ObjectIdHex(c.Param("id"))
+					var err error
+					if database.Url == "" {
+						err = databaseSession.DB(database.Id.Hex()).C(collectionName).Remove(query)
+					} else {
+						session, _ := mgo.Dial(database.Url)
+						err = session.DB("").C(collectionName).Remove(query)
+					}
+					if err != nil {
+						request.Done = false
+						request.Err = "Cannot delete resource"
+					}
+					if limited {
+						database.Deletes--
+					}
+					query = echo.Map{}
+					query["_id"] = database.Id
+					_ = applicationDatabase.C("databases").Update(query, database)
+					_ = publishChange(resourceChange{
+						DatabaseName:   database.Name,
+						CollectionName: collectionName,
+						Document:       nil,
+						DocumentId:     c.Param("id"),
+						Action:         "delete",
+						DatabaseId:     databaseId,
+					})
+					request.Done = true
+					request.Err = "Resource successfully deleted"
 					requestResponse, _ := json.Marshal(request)
 					_ = websocket.Message.Send(ws, string(requestResponse))
 				}
