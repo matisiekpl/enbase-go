@@ -10,10 +10,10 @@ For example, we have the `tasks` collection, and users can:
 - delete documents, when task is owned by given user
 
 The security rules for following assumptions looks like this:
-- read - `resource.userId == user.id`
-- create - `resource.hasOwnProperty('userId') && resource.userId == user.id && resource.hasOwnProperty('name') && resource.hasOwnProperty('done')`
-- update - `resource.hasOwnProperty('userId') && resource.userId == user.id && resource.hasOwnProperty('name') && resource.hasOwnProperty('done')`
-- delete - `resource.userId == user.id`
+- read - `document.userId == user.id`
+- create - `document.hasOwnProperty('userId') && document.userId == user.id && document.hasOwnProperty('name') && document.hasOwnProperty('done')`
+- update - `document.hasOwnProperty('userId') && document.userId == user.id && document.hasOwnProperty('name') && document.hasOwnProperty('done')`
+- delete - `document.userId == user.id`
 
 ## Reference
 - `user` - json object or null, represents currently logged in user
