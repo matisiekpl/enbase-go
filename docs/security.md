@@ -8,3 +8,9 @@ For example, we have the `tasks` collection, and users can:
 - create documents, when task has properties: `name`, `done`, `userId` and userId must match to logged user id
 - update documents, when task has properties: `name`, `done`, `userId` and userId must match to logged user id
 - delete documents, when task is owned by given user
+
+The security rules for following assumptions looks like this:
+- read - `resource.userId == user.id`
+- create - `resource.hasOwnProperty('userId') && resource.userId == user.id && resource.hasOwnProperty('name') && resource.hasOwnProperty('done')`
+- update - `resource.hasOwnProperty('userId') && resource.userId == user.id && resource.hasOwnProperty('name') && resource.hasOwnProperty('done')`
+- delete - `resource.userId == user.id`
