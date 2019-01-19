@@ -1,7 +1,5 @@
 sudo: false
-language: go
-go:
-  - master
+language: generic
 services:
   - mongodb
   - docker
