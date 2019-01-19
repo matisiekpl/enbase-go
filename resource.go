@@ -446,7 +446,7 @@ func crudBusController(c echo.Context) error {
 					_ = publishChange(resourceChange{
 						DatabaseName:   database.Name,
 						CollectionName: collectionName,
-						DocumentId:     c.Param("id"),
+						DocumentId:     request.DocumentId,
 						Document:       request.Document,
 						Action:         "update",
 						DatabaseId:     databaseId,
@@ -495,7 +495,7 @@ func crudBusController(c echo.Context) error {
 						DatabaseName:   database.Name,
 						CollectionName: collectionName,
 						Document:       nil,
-						DocumentId:     c.Param("id"),
+						DocumentId:     request.DocumentId,
 						Action:         "delete",
 						DatabaseId:     databaseId,
 					})
