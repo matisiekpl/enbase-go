@@ -14,3 +14,10 @@ The security rules for following assumptions looks like this:
 - create - `resource.hasOwnProperty('userId') && resource.userId == user.id && resource.hasOwnProperty('name') && resource.hasOwnProperty('done')`
 - update - `resource.hasOwnProperty('userId') && resource.userId == user.id && resource.hasOwnProperty('name') && resource.hasOwnProperty('done')`
 - delete - `resource.userId == user.id`
+
+## Reference
+- `user` - json object or null, represents currently logged in user
+- `action` - string, represents called action. Can be `read`, `create`, `update`, `delete` or `stream`
+- `document` - json object, represents requested document
+- `id` - string, represents requestes document id
+- `get` - function: `(collection: string, query: object) => []`, query resource in given collection with given query
