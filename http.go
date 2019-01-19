@@ -62,4 +62,5 @@ func handleRestRoutes() {
 	rest.PUT("/apps/:database/:collection/:id", updateResourceController)
 	rest.DELETE("/apps/:database/:collection/:id", deleteResourceController)
 	rest.GET("/apps/:database/:collection/stream/:action", changesController)
+	rest.GET("/ws", crudBusController)
 }
