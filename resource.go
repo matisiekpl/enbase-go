@@ -426,7 +426,7 @@ func crudBusController(c echo.Context) error {
 						}
 					}
 					query := echo.Map{}
-					query["_id"] = bson.ObjectIdHex(c.Param("id"))
+					query["_id"] = bson.ObjectIdHex(request.DocumentId)
 					if database.Url == "" {
 						err = databaseSession.DB(database.Id.Hex()).C(collectionName).Update(query, request.Document)
 					} else {
@@ -473,7 +473,7 @@ func crudBusController(c echo.Context) error {
 						}
 					}
 					query := echo.Map{}
-					query["_id"] = bson.ObjectIdHex(c.Param("id"))
+					query["_id"] = bson.ObjectIdHex(request.DocumentId)
 					var err error
 					if database.Url == "" {
 						err = databaseSession.DB(database.Id.Hex()).C(collectionName).Remove(query)
