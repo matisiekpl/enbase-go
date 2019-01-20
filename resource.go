@@ -322,11 +322,11 @@ func changesController(c echo.Context) error {
 					if c.Request().Header.Get("X-master-key") != database.MasterKey {
 						if permit(database, c.Param("collection"), nil, "stream", change.Document, change.DocumentId) {
 							payload, _ := json.Marshal(change)
-							_ = websocket.Message.Send(ws, []byte(payload))
+							_ = websocket.Message.Send(ws, string(payload))
 						}
 					} else {
 						payload, _ := json.Marshal(change)
-						_ = websocket.Message.Send(ws, []byte(payload))
+						_ = websocket.Message.Send(ws, string(payload))
 					}
 				}
 			}
