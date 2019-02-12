@@ -10,12 +10,12 @@
   version = "v1.5"
 
 [[projects]]
-  digest = "1:259651ca4058543532c88dbdd650fe99d8b02f785dceeae01ba0435a6c9f7c72"
+  digest = "1:5bdd0581421e643e6c3163bb5da785600a2d7d0d73fec58acebaf2e693868e9d"
   name = "github.com/cskr/pubsub"
   packages = ["."]
   pruneopts = "UT"
-  revision = "a1dc30a0b38055a251f1f04ceb4cc1c7207b0540"
-  version = "v1.0.1"
+  revision = "65166f5ae403cbf6dcdced31e1f8f8ad95485cb3"
+  version = "v1.0.2"
 
 [[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
