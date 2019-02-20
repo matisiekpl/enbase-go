@@ -876,7 +876,7 @@ func configureSockets() *socketio.Server {
 						if query == nil {
 							query = echo.Map{}
 						}
-						query.(echo.Map)["_id"] = bson.ObjectIdHex(change.DocumentId)
+						query.(map[string]interface{})["_id"] = bson.ObjectIdHex(change.DocumentId)
 						accessible := false
 						if database.Url == "" {
 							count, _ := databaseSession.DB(database.Id.Hex()).C(change.CollectionName).Find(&query).Count()
