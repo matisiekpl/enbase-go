@@ -138,6 +138,9 @@ func getUserId(c echo.Context) (jwt.MapClaims, error) {
 }
 
 func decodeToken(tokenStr string) (jwt.MapClaims, error) {
+	if tokenStr == "" {
+		return nil, nil
+	}
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, nil
