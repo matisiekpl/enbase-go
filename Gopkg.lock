@@ -99,6 +99,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:7b5c6e2eeaa9ae5907c391a91c132abfd5c9e8a784a341b5625e750c67e6825d"
+  name = "github.com/gorilla/websocket"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "66b9c49e59c6c48f0ffce28c2d8b8a5678502c6d"
+  version = "v1.4.0"
+
+[[projects]]
   digest = "1:a3ce4de79566c21e93cb6934797fdaa587ad3fc6a964708ab77babe54ea67188"
   name = "github.com/imkira/go-interpol"
   packages = ["."]
@@ -133,6 +141,14 @@
   pruneopts = "UT"
   revision = "e7e905edc00ea8827e58662220139109efea09db"
   version = "v1.2.0"
+
+[[projects]]
+  digest = "1:0a69a1c0db3591fcefb47f115b224592c8dfa4368b7ba9fae509d5e16cdc95c8"
+  name = "github.com/konsorten/go-windows-terminal-sequences"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "5c8c8bd35d3832f5d134ae1e1e375b69a4d25242"
+  version = "v1.0.1"
 
 [[projects]]
   digest = "1:efd601ad1d1189884f37ed075fadb5bbd17f1f5acf5862827247c6da56d125ba"
@@ -183,6 +199,30 @@
   version = "v0.0.4"
 
 [[projects]]
+  branch = "master"
+  digest = "1:2b32af4d2a529083275afc192d1067d8126b578c7a9613b26600e4df9c735155"
+  name = "github.com/mgutz/ansi"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "9520e82c474b0a04dd04f8a40959027271bab992"
+
+[[projects]]
+  branch = "master"
+  digest = "1:750abb588d8be68b8ad7e65e350fe2e79a060490ee2d24d437ed1a9f593d0dac"
+  name = "github.com/mlsquires/socketio"
+  packages = [
+    ".",
+    "engineio",
+    "engineio/message",
+    "engineio/parser",
+    "engineio/polling",
+    "engineio/transport",
+    "engineio/websocket",
+  ]
+  pruneopts = "UT"
+  revision = "169a6f09e62468882b9903aad586d2e1632d2f1c"
+
+[[projects]]
   digest = "1:7aefb397a53fc437c90f0fdb3e1419c751c5a3a165ced52325d5d797edf1aca6"
   name = "github.com/moul/http2curl"
   packages = ["."]
@@ -197,6 +237,30 @@
   pruneopts = "UT"
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:a207b3c8528051edafeefc95905358851336634d108facc667b00aac7589e891"
+  name = "github.com/pschlump/MiscLib"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "e4e6a3a34d5f96ca07d227443cfe10bf3049a31f"
+
+[[projects]]
+  branch = "master"
+  digest = "1:e6bf52eb67994b487231c73894bb31fe8be5c2c623e0638f750f79bde7313b3f"
+  name = "github.com/pschlump/godebug"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "609b75124fa70de6f6438b1c626092f3d5c5855d"
+
+[[projects]]
+  branch = "master"
+  digest = "1:7e9ddd0dfe0afb9919d3470762b7e488a174206648a0c2412dfb1e6d63073392"
+  name = "github.com/pschlump/json"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "0d2e6a308e08fb871c1bcd9b56fb21a1be305e22"
 
 [[projects]]
   branch = "master"
@@ -221,6 +285,14 @@
   pruneopts = "UT"
   revision = "1744e2970ca51c86172c8190fadad617561ed6e7"
   version = "v1.0.0"
+
+[[projects]]
+  digest = "1:87c2e02fb01c27060ccc5ba7c5a407cc91147726f8f40b70cceeedbc52b1f3a8"
+  name = "github.com/sirupsen/logrus"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "e1e72e9de974bd926e5c56f83753fba2df402ce5"
+  version = "v1.3.0"
 
 [[projects]]
   branch = "master"
@@ -322,11 +394,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e3d2db9bc633f4635e6418caf0b0734c43821ecd59105d1798458c6ae4d227fd"
+  digest = "1:c453d9962981ecfd2a07a28ad362ab43896ff7b4cd31aa4f2eaac54c7836ed6b"
   name = "golang.org/x/crypto"
   packages = [
     "acme",
     "acme/autocert",
+    "ssh/terminal",
   ]
   pruneopts = "UT"
   revision = "3d3f9f413869b949e48070b5bc593aa22cc2b8f2"
@@ -345,9 +418,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a62e80faf19c93dcbd7954a26fdb51acbfcb4b7161966adf1de531e593c4834a"
+  digest = "1:a089387bbfcfa884e5aafeebb85929993195bb8959766b1d20102841d47e0b0e"
   name = "golang.org/x/sys"
-  packages = ["unix"]
+  packages = [
+    "unix",
+    "windows",
+  ]
   pruneopts = "UT"
   revision = "93218def8b18e66adbdab3eca8ec334700329f1f"
 
@@ -405,6 +481,7 @@
     "github.com/joncalhoun/qson",
     "github.com/labstack/echo",
     "github.com/labstack/echo/middleware",
+    "github.com/mlsquires/socketio",
     "github.com/robertkrimen/otto",
     "github.com/streadway/amqp",
     "golang.org/x/net/websocket",

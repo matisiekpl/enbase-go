@@ -2,10 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/joncalhoun/qson"
 	"github.com/labstack/echo"
+	"github.com/mlsquires/socketio"
+	"github.com/pschlump/godebug"
 	"golang.org/x/net/websocket"
 	"net/http"
 	"strconv"
@@ -557,4 +561,372 @@ func crudBusController(c echo.Context) error {
 		}
 	}).ServeHTTP(c.Response(), c.Request())
 	return nil
+}
+
+type subscription struct {
+	DatabaseId string          `json:"database_id"`
+	Collection string          `json:"collection"`
+	Filter     interface{}     `json:"filter"`
+	Token      string          `json:"token"`
+	Socket     socketio.Socket `json:"-"`
+	MasterKey  string          `json:"master_key"`
+}
+
+type crudRequest struct {
+	DatabaseId string          `json:"database_id"`
+	Collection string          `json:"collection"`
+	Filter     interface{}     `json:"filter"`
+	Token      string          `json:"token"`
+	Socket     socketio.Socket `json:"-"`
+	MasterKey  string          `json:"master_key"`
+	Document   interface{}     `json:"document"`
+	Limit      int             `json:"limit"`
+	Skip       int             `json:"skip"`
+	DocumentId string          `json:"document_id"`
+}
+
+var subscriptions []subscription
+var databaseConnections map[string]database
+
+func configureSockets() *socketio.Server {
+	sockets, err := socketio.NewServer(nil)
+	if err != nil {
+		panic(err)
+	}
+	_ = sockets.On("connection", func(socket socketio.Socket) {
+		_ = socket.On("subscription", func(msg string) {
+			var subscription subscription
+			err = json.Unmarshal([]byte(msg), &subscription)
+			if err != nil {
+				fmt.Println(err)
+			}
+			subscription.Socket = socket
+			subscriptions = append(subscriptions, subscription)
+		})
+		_ = socket.On("disconnect", func() {
+			for i, subscription := range subscriptions {
+				if subscription.Socket == socket {
+					subscriptions = append(subscriptions[:i], subscriptions[i+1:]...)
+				}
+			}
+		})
+		_ = socket.On("create", func(msg string) string {
+			var request crudRequest
+			err = json.Unmarshal([]byte(msg), &request)
+			if err != nil {
+				fmt.Println(err)
+			}
+			var database database
+			if _, ok := databaseConnections[request.DatabaseId]; ok {
+				database = databaseConnections[request.DatabaseId]
+			} else {
+				if err := applicationDatabase.C("databases").Find(echo.Map{
+					"_id": bson.ObjectIdHex(request.DatabaseId),
+				}).One(&database); err != nil {
+					return returnSocketError("cannot find database")
+				}
+			}
+			user, err := decodeToken(request.Token)
+			if err != nil {
+				return returnSocketError("token invalid")
+			}
+			if request.MasterKey != database.MasterKey {
+				if !permit(database, request.Collection, user, "create", request.Document, "") || (limited && database.Creates <= 0) {
+					return returnSocketError("access denied")
+				}
+			}
+			if request.Document == nil {
+				return returnSocketError("document not provided")
+			}
+			id := bson.NewObjectId()
+			request.Document.(map[string]interface{})["_id"] = id
+			if database.Url == "" {
+				err = databaseSession.DB(database.Id.Hex()).C(request.Collection).Insert(request.Document)
+			} else {
+				session, _ := mgo.Dial(database.Url)
+				err = session.DB("").C(request.Collection).Insert(request.Document)
+			}
+			if err != nil {
+				return returnSocketError("cannot insert resource into database")
+			}
+			if limited {
+				database.Creates--
+			}
+			query := echo.Map{}
+			query["_id"] = database.Id
+			_ = applicationDatabase.C("databases").Update(query, database)
+			_ = publishChange(resourceChange{
+				DatabaseName:   database.Name,
+				CollectionName: request.Collection,
+				Document:       request.Document,
+				DocumentId:     request.Document.(map[string]interface{})["_id"].(bson.ObjectId).Hex(),
+				Action:         "create",
+				DatabaseId:     request.DatabaseId,
+			})
+			payload, _ := json.Marshal(response{
+				Success: true,
+				Message: "Resource successfully inserted",
+				Data:    request.Document,
+			})
+			return string(payload)
+		})
+		_ = socket.On("read", func(msg string) string {
+			var request crudRequest
+			err = json.Unmarshal([]byte(msg), &request)
+			if err != nil {
+				fmt.Println(err)
+			}
+			var database database
+			if _, ok := databaseConnections[request.DatabaseId]; ok {
+				database = databaseConnections[request.DatabaseId]
+			} else {
+				if err := applicationDatabase.C("databases").Find(echo.Map{
+					"_id": bson.ObjectIdHex(request.DatabaseId),
+				}).One(&database); err != nil {
+					return returnSocketError("cannot find database")
+				}
+			}
+			user, err := decodeToken(request.Token)
+			if err != nil {
+				return returnSocketError("token invalid")
+			}
+			var iter *mgo.Iter
+			if database.Url == "" {
+				iter = databaseSession.DB(database.Id.Hex()).C(request.Collection).Find(request.Document).Iter()
+			} else {
+				session, _ := mgo.Dial(database.Url)
+				iter = session.DB("").C(request.Collection).Find(request.Document).Iter()
+			}
+			var resource interface{}
+			var resources []interface{}
+			resourcesLimit := 50
+			resourcesSkip := 0
+			if request.Limit != 0 {
+				resourcesLimit = request.Limit
+			}
+			if request.Skip != 0 {
+				resourcesSkip = request.Skip
+			}
+			resourcesCount := 0
+			for resourcesCount < resourcesLimit && iter.Next(&resource) {
+				if request.MasterKey == database.MasterKey || (permit(database, request.Collection, user, "read", resource, "") && !(limited && database.Reads <= 0)) {
+					resourcesSkip--
+					if resourcesSkip < 0 {
+						if limited {
+							database.Reads--
+						}
+						query := echo.Map{}
+						query["_id"] = database.Id
+						_ = applicationDatabase.C("databases").Update(query, database)
+						resources = append(resources, resource)
+						resourcesCount++
+					}
+				}
+			}
+			payload, _ := json.Marshal(response{
+				Success: true,
+				Message: "Successfully queried resources",
+				Data:    resources,
+			})
+			return string(payload)
+		})
+		_ = socket.On("update", func(msg string) string {
+			var request crudRequest
+			err = json.Unmarshal([]byte(msg), &request)
+			if err != nil {
+				fmt.Println(err)
+			}
+			var database database
+			if _, ok := databaseConnections[request.DatabaseId]; ok {
+				database = databaseConnections[request.DatabaseId]
+			} else {
+				if err := applicationDatabase.C("databases").Find(echo.Map{
+					"_id": bson.ObjectIdHex(request.DatabaseId),
+				}).One(&database); err != nil {
+					return returnSocketError("cannot find database")
+				}
+			}
+			user, err := decodeToken(request.Token)
+			if err != nil {
+				return returnSocketError("token invalid")
+			}
+			if request.MasterKey != database.MasterKey {
+				if !permit(database, request.Collection, user, "create", request.Document, "") || (limited && database.Creates <= 0) {
+					return returnSocketError("access denied")
+				}
+			}
+			if request.Document == nil {
+				return returnSocketError("document not provided")
+			}
+			query := echo.Map{}
+			query["_id"] = bson.ObjectIdHex(request.DocumentId)
+			if database.Url == "" {
+				err = databaseSession.DB(database.Id.Hex()).C(request.Collection).Update(query, request.Document)
+			} else {
+				session, _ := mgo.Dial(database.Url)
+				err = session.DB("").C(request.Collection).Update(query, request.Document)
+			}
+			if err != nil {
+				return returnSocketError("cannot update resource")
+			}
+			if limited {
+				database.Updates--
+			}
+			query = echo.Map{}
+			query["_id"] = database.Id
+			_ = applicationDatabase.C("databases").Update(query, database)
+			_ = publishChange(resourceChange{
+				DatabaseName:   database.Name,
+				CollectionName: request.Collection,
+				Document:       request.Document,
+				DocumentId:     request.Document.(map[string]interface{})["_id"].(bson.ObjectId).Hex(),
+				Action:         "update",
+				DatabaseId:     request.DatabaseId,
+			})
+			payload, _ := json.Marshal(response{
+				Success: true,
+				Message: "Resource successfully inserted",
+				Data:    request.Document,
+			})
+			return string(payload)
+		})
+		_ = socket.On("delete", func(msg string) string {
+			var request crudRequest
+			err = json.Unmarshal([]byte(msg), &request)
+			if err != nil {
+				fmt.Println(err)
+			}
+			var database database
+			if _, ok := databaseConnections[request.DatabaseId]; ok {
+				database = databaseConnections[request.DatabaseId]
+			} else {
+				if err := applicationDatabase.C("databases").Find(echo.Map{
+					"_id": bson.ObjectIdHex(request.DatabaseId),
+				}).One(&database); err != nil {
+					return returnSocketError("cannot find database")
+				}
+			}
+			var user jwt.MapClaims
+			user, err = decodeToken(request.Token)
+			if err != nil {
+				return returnSocketError("token invalid")
+			}
+			if request.MasterKey != database.MasterKey {
+				if !permit(database, request.Collection, user, "create", request.Document, "") || (limited && database.Creates <= 0) {
+					return returnSocketError("access denied")
+				}
+			}
+			if request.Document == nil {
+				return returnSocketError("document not provided")
+			}
+			query := echo.Map{}
+			query["_id"] = bson.ObjectIdHex(request.DocumentId)
+			var err error
+			if database.Url == "" {
+				err = databaseSession.DB(database.Id.Hex()).C(request.Collection).Remove(query)
+			} else {
+				session, _ := mgo.Dial(database.Url)
+				err = session.DB("").C(request.Collection).Remove(query)
+			}
+			if err != nil {
+				return returnSocketError("cannot delete resource")
+			}
+			if limited {
+				database.Deletes--
+			}
+			query = echo.Map{}
+			query["_id"] = database.Id
+			_ = applicationDatabase.C("databases").Update(query, database)
+			_ = publishChange(resourceChange{
+				DatabaseName:   database.Name,
+				CollectionName: request.Collection,
+				Document:       request.Document,
+				DocumentId:     request.Document.(map[string]interface{})["_id"].(bson.ObjectId).Hex(),
+				Action:         "update",
+				DatabaseId:     request.DatabaseId,
+			})
+			payload, _ := json.Marshal(response{
+				Success: true,
+				Message: "Resource successfully deleted",
+				Data:    request.Document,
+			})
+			return string(payload)
+		})
+	})
+	go func() {
+		sub := localPubsub.Sub("changes")
+		for msg := range sub {
+			change := msg.(resourceChange)
+			for _, subscription := range subscriptions {
+				if change.DatabaseId == subscription.DatabaseId && change.CollectionName == subscription.Collection {
+					var database database
+					validDatabase := false
+					if _, ok := databaseConnections[subscription.DatabaseId]; ok {
+						database = databaseConnections[subscription.DatabaseId]
+						validDatabase = true
+					} else {
+						if err := applicationDatabase.C("databases").Find(echo.Map{
+							"_id": bson.ObjectIdHex(subscription.DatabaseId),
+						}).One(&database); err == nil {
+							validDatabase = true
+						}
+					}
+					if validDatabase {
+						query := subscription.Filter
+						if query == nil {
+							query = echo.Map{}
+						}
+						query.(map[string]interface{})["_id"] = bson.ObjectIdHex(change.DocumentId)
+						accessible := false
+						if database.Url == "" {
+							count, _ := databaseSession.DB(database.Id.Hex()).C(change.CollectionName).Find(&query).Count()
+							if count > 0 {
+								accessible = true
+							}
+						} else {
+							session, _ := mgo.Dial(database.Url)
+							count, _ := session.DB("").C(change.CollectionName).Find(&query).Count()
+							if count > 0 {
+								accessible = true
+							}
+						}
+						if accessible {
+							if subscription.MasterKey != database.MasterKey {
+								user, _ := decodeToken(subscription.Token)
+								if permit(database, subscription.Collection, user, "stream", change.Document, change.DocumentId) {
+									bytes, err := json.Marshal(change)
+									if err != nil {
+										panic(err)
+									}
+									_ = subscription.Socket.Emit("changes", string(bytes))
+								}
+							} else {
+								bytes, err := json.Marshal(change)
+								if err != nil {
+									panic(err)
+								}
+								_ = subscription.Socket.Emit("changes", string(bytes))
+							}
+						}
+					}
+				}
+			}
+		}
+	}()
+	_ = sockets.On("error", func(so socketio.Socket, err error) {
+		fmt.Printf("Error: %s, %s\n", err, godebug.LF())
+	})
+	return sockets
+}
+
+func returnSocketError(msg string) string {
+	payload, err := json.Marshal(struct {
+		Error string `json:"error"`
+	}{
+		Error: msg,
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+	return string(payload)
 }

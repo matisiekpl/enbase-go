@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"github.com/mlsquires/socketio"
 	"gopkg.in/go-playground/validator.v9"
 	"net/http"
 	"net/http/httputil"
@@ -34,6 +35,8 @@ func bootstrapRestServer() {
 	handleRestRoutes()
 }
 
+var sockets *socketio.Server
+
 func handleRestRoutes() {
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	rest.Use(middleware.CORS())
@@ -63,4 +66,22 @@ func handleRestRoutes() {
 	rest.DELETE("/apps/:database/:collection/:id", deleteResourceController)
 	rest.GET("/apps/:database/:collection/stream/:action", changesController)
 	rest.GET("/ws", crudBusController)
+	sockets = configureSockets()
+	rest.Any("/socket.io/", func(context echo.Context) error {
+		(&corsSocketsServer{
+			Server: sockets,
+		}).ServeHTTP(context.Response().Writer, context.Request())
+		return nil
+	})
+}
+
+type corsSocketsServer struct {
+	Server *socketio.Server
+}
+
+func (s *corsSocketsServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	origin := r.Header.Get("Origin")
+	w.Header().Set("Access-Control-Allow-Origin", origin)
+	s.Server.ServeHTTP(w, r)
 }

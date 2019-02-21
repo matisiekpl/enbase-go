@@ -134,6 +134,13 @@ func registerController(httpContext echo.Context) error {
 
 func getUserId(c echo.Context) (jwt.MapClaims, error) {
 	tokenStr := strings.Replace(c.Request().Header.Get("Authorization"), "Bearer ", "", 1)
+	return decodeToken(tokenStr)
+}
+
+func decodeToken(tokenStr string) (jwt.MapClaims, error) {
+	if tokenStr == "" {
+		return nil, nil
+	}
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, nil
