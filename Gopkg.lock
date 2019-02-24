@@ -207,6 +207,14 @@
   revision = "9520e82c474b0a04dd04f8a40959027271bab992"
 
 [[projects]]
+  digest = "1:53bc4cd4914cd7cd52139990d5170d6dc99067ae31c56530621b18b35fc30318"
+  name = "github.com/mitchellh/mapstructure"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "3536a929edddb9a5b34bd6861dc4a9647cb459fe"
+  version = "v1.1.2"
+
+[[projects]]
   branch = "master"
   digest = "1:750abb588d8be68b8ad7e65e350fe2e79a060490ee2d24d437ed1a9f593d0dac"
   name = "github.com/mlsquires/socketio"
@@ -481,7 +489,9 @@
     "github.com/joncalhoun/qson",
     "github.com/labstack/echo",
     "github.com/labstack/echo/middleware",
+    "github.com/mitchellh/mapstructure",
     "github.com/mlsquires/socketio",
+    "github.com/pschlump/godebug",
     "github.com/robertkrimen/otto",
     "github.com/streadway/amqp",
     "golang.org/x/net/websocket",
