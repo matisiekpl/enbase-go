@@ -612,11 +612,18 @@ func configureSockets() *socketio.Server {
 			subscriptions = append(subscriptions, subscription)
 		})
 		_ = socket.On("disconnect", func() {
-			for i, subscription := range subscriptions {
-				if subscription.Socket == socket {
-					subscriptions = append(subscriptions[:i], subscriptions[i+1:]...)
+			//for i, subscription := range subscriptions {
+			//	if subscription.Socket == socket {
+			//		subscriptions = append(subscriptions[:i], subscriptions[i+1:]...)
+			//	}
+			//}
+			subscriptions = Filter(subscriptions, func(i subscription) bool {
+				if i.Socket == socket {
+					return false
+				} else {
+					return true
 				}
-			}
+			})
 		})
 		_ = socket.On("create", func(msg map[string]interface{}) map[string]interface{} {
 			var request crudRequest
@@ -953,4 +960,14 @@ func returnSocketError(msg string) map[string]interface{} {
 	}{
 		Error: msg,
 	})
+}
+
+func Filter(vs []subscription, f func(subscription) bool) []subscription {
+	vsf := make([]subscription, 0)
+	for _, v := range vs {
+		if f(v) {
+			vsf = append(vsf, v)
+		}
+	}
+	return vsf
 }
