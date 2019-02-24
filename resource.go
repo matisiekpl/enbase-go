@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/fatih/structs"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/joncalhoun/qson"
 	"github.com/labstack/echo"
+	"github.com/mitchellh/mapstructure"
 	"github.com/mlsquires/socketio"
 	"github.com/pschlump/godebug"
 	"golang.org/x/net/websocket"
@@ -594,9 +596,15 @@ func configureSockets() *socketio.Server {
 		panic(err)
 	}
 	_ = sockets.On("connection", func(socket socketio.Socket) {
-		_ = socket.On("subscription", func(msg string) {
+		_ = socket.On("subscription", func(msg map[string]interface{}) {
 			var subscription subscription
-			err = json.Unmarshal([]byte(msg), &subscription)
+			cfg := &mapstructure.DecoderConfig{
+				Metadata: nil,
+				Result:   &subscription,
+				TagName:  "json",
+			}
+			decoder, _ := mapstructure.NewDecoder(cfg)
+			err = decoder.Decode(msg)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -610,11 +618,17 @@ func configureSockets() *socketio.Server {
 				}
 			}
 		})
-		_ = socket.On("create", func(msg string) string {
+		_ = socket.On("create", func(msg map[string]interface{}) map[string]interface{} {
 			var request crudRequest
-			err = json.Unmarshal([]byte(msg), &request)
+			cfg := &mapstructure.DecoderConfig{
+				Metadata: nil,
+				Result:   &request,
+				TagName:  "json",
+			}
+			decoder, _ := mapstructure.NewDecoder(cfg)
+			err = decoder.Decode(msg)
 			if err != nil {
-				fmt.Println(err)
+				return returnSocketError("error while decoding payload")
 			}
 			var database database
 			if _, ok := databaseConnections[request.DatabaseId]; ok {
@@ -663,18 +677,23 @@ func configureSockets() *socketio.Server {
 				Action:         "create",
 				DatabaseId:     request.DatabaseId,
 			})
-			payload, _ := json.Marshal(response{
+			return structs.Map(&response{
 				Success: true,
 				Message: "Resource successfully inserted",
 				Data:    request.Document,
 			})
-			return string(payload)
 		})
-		_ = socket.On("read", func(msg string) string {
+		_ = socket.On("read", func(msg map[string]interface{}) map[string]interface{} {
 			var request crudRequest
-			err = json.Unmarshal([]byte(msg), &request)
+			cfg := &mapstructure.DecoderConfig{
+				Metadata: nil,
+				Result:   &request,
+				TagName:  "json",
+			}
+			decoder, _ := mapstructure.NewDecoder(cfg)
+			err = decoder.Decode(msg)
 			if err != nil {
-				fmt.Println(err)
+				return returnSocketError("error while decoding payload")
 			}
 			var database database
 			if _, ok := databaseConnections[request.DatabaseId]; ok {
@@ -723,18 +742,23 @@ func configureSockets() *socketio.Server {
 					}
 				}
 			}
-			payload, _ := json.Marshal(response{
+			return structs.Map(&response{
 				Success: true,
 				Message: "Successfully queried resources",
 				Data:    resources,
 			})
-			return string(payload)
 		})
-		_ = socket.On("update", func(msg string) string {
+		_ = socket.On("update", func(msg string) map[string]interface{} {
 			var request crudRequest
-			err = json.Unmarshal([]byte(msg), &request)
+			cfg := &mapstructure.DecoderConfig{
+				Metadata: nil,
+				Result:   &request,
+				TagName:  "json",
+			}
+			decoder, _ := mapstructure.NewDecoder(cfg)
+			err = decoder.Decode(msg)
 			if err != nil {
-				fmt.Println(err)
+				return returnSocketError("error while decoding payload")
 			}
 			var database database
 			if _, ok := databaseConnections[request.DatabaseId]; ok {
@@ -783,18 +807,23 @@ func configureSockets() *socketio.Server {
 				Action:         "update",
 				DatabaseId:     request.DatabaseId,
 			})
-			payload, _ := json.Marshal(response{
+			return structs.Map(&response{
 				Success: true,
 				Message: "Resource successfully inserted",
 				Data:    request.Document,
 			})
-			return string(payload)
 		})
-		_ = socket.On("delete", func(msg string) string {
+		_ = socket.On("delete", func(msg string) map[string]interface{} {
 			var request crudRequest
-			err = json.Unmarshal([]byte(msg), &request)
+			cfg := &mapstructure.DecoderConfig{
+				Metadata: nil,
+				Result:   &request,
+				TagName:  "json",
+			}
+			decoder, _ := mapstructure.NewDecoder(cfg)
+			err = decoder.Decode(msg)
 			if err != nil {
-				fmt.Println(err)
+				return returnSocketError("error while decoding payload")
 			}
 			var database database
 			if _, ok := databaseConnections[request.DatabaseId]; ok {
@@ -845,12 +874,11 @@ func configureSockets() *socketio.Server {
 				Action:         "update",
 				DatabaseId:     request.DatabaseId,
 			})
-			payload, _ := json.Marshal(response{
+			return structs.Map(&response{
 				Success: true,
 				Message: "Resource successfully deleted",
 				Data:    request.Document,
 			})
-			return string(payload)
 		})
 	})
 	go func() {
@@ -919,14 +947,10 @@ func configureSockets() *socketio.Server {
 	return sockets
 }
 
-func returnSocketError(msg string) string {
-	payload, err := json.Marshal(struct {
+func returnSocketError(msg string) map[string]interface{} {
+	return structs.Map(&struct {
 		Error string `json:"error"`
 	}{
 		Error: msg,
 	})
-	if err != nil {
-		fmt.Println(err)
-	}
-	return string(payload)
 }
