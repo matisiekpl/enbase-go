@@ -7,10 +7,10 @@ import (
 )
 
 type project struct {
-	Id           bson.ObjectId `json:"id" bson:"_id,omitempty"`
-	Name         string        `json:"name"`
-	Description  string        `json:"description"`
-	Author       string        `json:"author"`
+	Id          bson.ObjectId `json:"id" bson:"_id,omitempty"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Author      string        `json:"author"`
 }
 
 func isProjectExists(id string, userId string) bool {
@@ -51,6 +51,7 @@ func createProjectController(c echo.Context) error {
 		})
 		return nil
 	}
+	project.Id = bson.NewObjectId()
 	err = applicationDatabase.C("projects").Insert(project)
 	if err != nil {
 		_ = c.JSON(http.StatusBadRequest, response{

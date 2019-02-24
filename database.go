@@ -64,6 +64,7 @@ func createDatabaseController(c echo.Context) error {
 		})
 		return nil
 	}
+	database.Id = bson.NewObjectId()
 	err = applicationDatabase.C("databases").Insert(database)
 	if err != nil {
 		_ = c.JSON(http.StatusBadRequest, response{
