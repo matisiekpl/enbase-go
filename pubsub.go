@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	pubsub2 "github.com/cskr/pubsub"
 	"github.com/streadway/amqp"
@@ -49,39 +48,6 @@ func connectToPubSub() {
 		return
 	}
 	go func() {
-		consumeChange(func(change resourceChange) {
-			localPubsub.Pub(change, "changes")
-		})
+
 	}()
-}
-
-func publishChange(msg resourceChange) error {
-	payload, err := json.Marshal(msg)
-	if err != nil {
-		return err
-	}
-	err = changesChannel.Publish("changes", "", false, false, amqp.Publishing{
-		ContentType: "text/plain",
-		Body:        []byte(payload),
-	})
-	return err
-}
-
-type callback func(change resourceChange)
-
-func consumeChange(callback callback) {
-	msgs, err := changesChannel.Consume(changesQueue.Name, "", true, false, false, false, nil)
-	if err != nil {
-		panic(err)
-		return
-	}
-	forever := make(chan bool)
-	go func() {
-		for msg := range msgs {
-			var change resourceChange
-			_ = json.Unmarshal(msg.Body, &change)
-			callback(change)
-		}
-	}()
-	<-forever
 }

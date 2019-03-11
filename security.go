@@ -7,7 +7,7 @@ import (
 	"github.com/robertkrimen/otto"
 )
 
-func permit(database database, collectionName string, user jwt.MapClaims, action string, document interface{}, id string) bool {
+func permit(database Project, collectionName string, user jwt.MapClaims, action string, document interface{}, id string) bool {
 	rule := database.Rules[collectionName+":"+action]
 	if rule == nil {
 		return false
