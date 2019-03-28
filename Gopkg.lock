@@ -422,7 +422,7 @@
     "websocket",
   ]
   pruneopts = "UT"
-  revision = "56fb01167e7d1e1d17dd87993d34c963f4356e87"
+  revision = "63eda1eb0650888965ead1296efd04d0b2b61128"
 
 [[projects]]
   branch = "master"
