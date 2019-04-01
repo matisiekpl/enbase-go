@@ -459,12 +459,12 @@
   version = "v0.3.0"
 
 [[projects]]
-  digest = "1:a5000fcb87d763e1d410111d32f3e1d07a6f7913f7efdf68070636c407da54d1"
+  digest = "1:7bb1ad654b21fb8f44c77c07840007d6796f70d42d1b470600f943a508ff8a72"
   name = "gopkg.in/go-playground/validator.v9"
   packages = ["."]
   pruneopts = "UT"
-  revision = "b199fa0642d29caca62b6a99d65cc981ba5edc3b"
-  version = "v9.27.0"
+  revision = "46b4b1e301c24cac870ffcb4ba5c8a703d1ef475"
+  version = "v9.28.0"
 
 [[projects]]
   digest = "1:9935525a8c49b8434a0b0a54e1980e94a6fae73aaff45c5d33ba8dff69de123e"
