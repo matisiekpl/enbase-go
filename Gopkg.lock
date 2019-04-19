@@ -43,19 +43,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:99409b277e9cd3f00284f8898e43b517956514108d1b220efc60ef05c8a8fd58"
+  digest = "1:9a2c4c4db405bb0a9de0d51bdc005437ace623ae48117a4da3b250cf1224b155"
   name = "github.com/gavv/httpexpect"
   packages = ["."]
   pruneopts = "UT"
-  revision = "bdde308713130a703436e014ff782958c251d20a"
-
-[[projects]]
-  branch = "master"
-  digest = "1:fbc02c2b3b78e6bc30228f3bae582f1fcea74a050cbdbf42f24eff12bef8eab4"
-  name = "github.com/gavv/monotime"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "6f8212e8d10df7383609d3c377ca08884d8f3ec0"
+  revision = "bbcae42c38291d1fdec151236a09ea6665970bdc"
 
 [[projects]]
   branch = "master"
