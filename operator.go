@@ -196,58 +196,125 @@ func (project *Project) resolveType(ttype ast.Type, name string) graphql.Output 
 		case *ast.NonNull:
 			return graphql.NewNonNull(project.resolveType(ttype.(interface{}).(*ast.NonNull).Type, ""))
 		default:
-			var def *ast.ObjectDefinition
 			for _, item := range project.Definitions.Definitions {
 				switch item.(type) {
 				case *ast.ObjectDefinition:
 					if item.(*ast.ObjectDefinition).Name.Value == name {
-						def = item.(*ast.ObjectDefinition)
+						def := item.(*ast.ObjectDefinition)
+						if def == nil {
+							return nil
+						}
+						fields := graphql.Fields{}
+						var description string
+						if def.Description != nil {
+							description = def.Description.Value
+						}
+						project.Types[name] = graphql.NewObject(graphql.ObjectConfig{
+							Name:        name,
+							Description: description,
+							Fields:      fields,
+						})
+						for _, field := range def.Fields {
+							args := graphql.FieldConfigArgument{}
+							fields[field.Name.Value] = &graphql.Field{
+								Name:        field.Name.Value,
+								Description: ReturnDescriptionOrNull(field),
+								Args:        args,
+								Type:        project.resolveType(field.Type, ""),
+								Resolve: func(p graphql.ResolveParams) (i interface{}, e error) {
+									return nil, nil
+								},
+							}
+							for _, arg := range field.Arguments {
+								var defaultsValue interface{}
+								if arg.DefaultValue != nil {
+									defaultsValue = arg.DefaultValue.GetValue()
+								}
+								args[arg.Name.Value] = &graphql.ArgumentConfig{
+									Type:         project.resolveType(arg.Type, ""),
+									Description:  ReturnDescriptionOrNull(arg),
+									DefaultValue: defaultsValue,
+								}
+							}
+						}
+						return project.Types[name]
+					}
+				case *ast.InputObjectDefinition:
+					if item.(*ast.InputObjectDefinition).Name.Value == name {
+						def := item.(*ast.InputObjectDefinition)
+						if def == nil {
+							return nil
+						}
+						fields := graphql.InputObjectConfigFieldMap{}
+						var description string
+						if def.Description != nil {
+							description = def.Description.Value
+						}
+						project.Types[name] = graphql.NewInputObject(graphql.InputObjectConfig{
+							Name:        name,
+							Description: description,
+							Fields:      fields,
+						})
+						for _, field := range def.Fields {
+							fields[field.Name.Value] = &graphql.InputObjectFieldConfig{
+								Description: ReturnDescriptionOrNull(field),
+								Type:        project.resolveType(field.Type, ""),
+							}
+						}
+						return project.Types[name]
+					}
+				case *ast.InterfaceDefinition:
+					if item.(*ast.InterfaceDefinition).Name.Value == name {
+						def := item.(*ast.InterfaceDefinition)
+						if def == nil {
+							return nil
+						}
+						fields := graphql.Fields{}
+						var description string
+						if def.Description != nil {
+							description = def.Description.Value
+						}
+						project.Types[name] = graphql.NewInterface(graphql.InterfaceConfig{
+							Name:        name,
+							Description: description,
+							Fields:      fields,
+						})
+						for _, field := range def.Fields {
+							fields[field.Name.Value] = &graphql.Field{
+								Description: ReturnDescriptionOrNull(field),
+								Type:        project.resolveType(field.Type, ""),
+							}
+						}
+						return project.Types[name]
+					}
+				case *ast.EnumDefinition:
+					if item.(*ast.EnumDefinition).Name.Value == name {
+						def := item.(*ast.EnumDefinition)
+						if def == nil {
+							return nil
+						}
+						values := graphql.EnumValueConfigMap{}
+						var description string
+						if def.Description != nil {
+							description = def.Description.Value
+						}
+						project.Types[name] = graphql.NewInputObject(graphql.InputObjectConfig{
+							Name:        name,
+							Description: description,
+							Fields:      values,
+						})
+						for _, value := range def.Values {
+							values[value.Name.Value] = &graphql.EnumValueConfig{
+								Description: ReturnDescriptionOrNull(value),
+							}
+						}
+						return project.Types[name]
 					}
 				}
 			}
-			if def == nil {
-				return nil
-			}
-			fields := graphql.Fields{}
-			var description string
-			if def.Description != nil {
-				description = def.Description.Value
-			}
-			project.Types[name] = graphql.NewObject(graphql.ObjectConfig{
-				Name:        name,
-				Description: description,
-				Fields:      fields,
-			})
-			for _, field := range def.Fields {
-				args := graphql.FieldConfigArgument{}
-				fields[field.Name.Value] = &graphql.Field{
-					Name:        field.Name.Value,
-					Description: ReturnDescriptionOrNull(field),
-					Args:        args,
-					Type:        project.resolveType(field.Type, ""),
-					Resolve: func(p graphql.ResolveParams) (i interface{}, e error) {
-						return nil, nil
-					},
-				}
-				for _, arg := range field.Arguments {
-					var defaultsValue interface{}
-					if arg.DefaultValue != nil {
-						defaultsValue = arg.DefaultValue.GetValue()
-					}
-					args[arg.Name.Value] = &graphql.ArgumentConfig{
-						Type:         project.resolveType(arg.Type, ""),
-						Description:  ReturnDescriptionOrNull(arg),
-						DefaultValue: defaultsValue,
-					}
-				}
-			}
-			return project.Types[name]
 		}
 	}
-}
-
-type Describable struct {
-	Description *ast.StringValue
+	return nil
 }
 
 func ReturnDescriptionOrNull(item interface{}) string {
@@ -286,24 +353,6 @@ func (project *Project) compile() *graphql.Schema {
 					return fmt.Sprintf("%v", value)
 				},
 			})
-		case *ast.UnionDefinition:
-			types := []*graphql.Object{}
-			for _, v := range def.(interface{}).(*ast.UnionDefinition).Types {
-				item := project.resolveType(nil, v.Name.Value)
-				types = append(types, item.(interface{}).(*graphql.Object))
-			}
-			project.Types[def.(interface{}).(*ast.UnionDefinition).Name.Value] = graphql.NewUnion(graphql.UnionConfig{
-				Name: def.(interface{}).(*ast.UnionDefinition).Name.Value,
-				ResolveType: func(p graphql.ResolveTypeParams) *graphql.Object {
-					for _, v := range types {
-						if v.Name() == p.Value.(interface{}).(*graphql.Object).Name() {
-							return v
-						}
-					}
-					return nil
-				},
-				Types: types,
-			})
 		case *ast.EnumDefinition:
 			values := map[string]*graphql.EnumValueConfig{}
 			for _, v := range def.(interface{}).(*ast.EnumDefinition).Values {
@@ -315,20 +364,61 @@ func (project *Project) compile() *graphql.Schema {
 				Name:   def.(interface{}).(*ast.EnumDefinition).Name.Value,
 				Values: values,
 			})
-		case *ast.InterfaceDefinition:
-			fields := graphql.Fields{}
-			for _, v := range def.(interface{}).(*ast.InterfaceDefinition).Fields {
-				fields[v.Name.Value] = &graphql.Field{
-					Name: v.Name.Value,
-					Type: project.resolveType(v.Type, ""),
-				}
-			}
-			project.Types[def.(interface{}).(*ast.InterfaceDefinition).Name.Value] = graphql.NewInterface(graphql.InterfaceConfig{
-				Name:   def.(interface{}).(*ast.InterfaceDefinition).Name.Value,
-				Fields: fields,
-			})
 		}
 	}
+	//for _, def := range project.Definitions.Definitions {
+	//	switch def.(type) {
+	//	case *ast.UnionDefinition:
+	//		types := []*graphql.Object{}
+	//		project.Types[def.(interface{}).(*ast.UnionDefinition).Name.Value] = graphql.NewUnion(graphql.UnionConfig{
+	//			Name: def.(interface{}).(*ast.UnionDefinition).Name.Value,
+	//			ResolveType: func(p graphql.ResolveTypeParams) *graphql.Object {
+	//				for _, v := range types {
+	//					if v.Name() == p.Value.(interface{}).(*graphql.Object).Name() {
+	//						return v
+	//					}
+	//				}
+	//				return nil
+	//			},
+	//			Types: types,
+	//		})
+	//		for _, v := range def.(interface{}).(*ast.UnionDefinition).Types {
+	//			item := project.resolveType(nil, v.Name.Value)
+	//			types = append(types, item.(interface{}).(*graphql.Object))
+	//		}
+	//	case *ast.InterfaceDefinition:
+	//		project.Types[def.(interface{}).(*ast.InterfaceDefinition).Name.Value] = graphql.NewInterface(graphql.InterfaceConfig{
+	//			Name:   def.(interface{}).(*ast.InterfaceDefinition).Name.Value,
+	//			Fields: graphql.Fields{},
+	//		})
+	//		for _, v := range def.(interface{}).(*ast.InterfaceDefinition).Fields {
+	//			project.Types[def.(interface{}).(*ast.InterfaceDefinition).Name.Value].(interface{}).(*graphql.Interface).AddFieldConfig(v.Name.Value, &graphql.Field{
+	//				Name: v.Name.Value,
+	//				Type: project.resolveType(v.Type, v.Type.String()),
+	//			})
+	//		}
+	//	case *ast.InputObjectDefinition:
+	//		project.Types[def.(interface{}).(*ast.InputObjectDefinition).Name.Value] = graphql.NewInputObject(graphql.InputObjectConfig{
+	//			Name:   def.(interface{}).(*ast.InputObjectDefinition).Name.Value,
+	//			Fields: graphql.InputObjectConfigFieldMap{},
+	//		})
+	//		for _, v := range def.(interface{}).(*ast.InputObjectDefinition).Fields {
+	//			var defaultValue interface{}
+	//			var description string
+	//			if v.DefaultValue != nil {
+	//				defaultValue = v.DefaultValue.GetValue()
+	//			}
+	//			if v.Description != nil {
+	//				description = v.Description.Value
+	//			}
+	//			project.Types[def.(interface{}).(*ast.InputObjectDefinition).Name.Value].(interface{}).(*graphql.InputObject).AddFieldConfig(v.Name.Value, &graphql.InputObjectFieldConfig{
+	//				Type:         project.resolveType(v.Type, v.Type.String()),
+	//				DefaultValue: defaultValue,
+	//				Description:  description,
+	//			})
+	//		}
+	//	}
+	//}
 	queryObject := project.resolveType(nil, "Query")
 	mutationObject := project.resolveType(nil, "Mutation")
 	var query *graphql.Object
