@@ -414,7 +414,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c341f9adba124bed26a2e34d8e816865507df0d4b3af4a4012aa2a284db665e2"
+  digest = "1:363c5339e708c16d21ee1be9be56ca9f5b4448475a4ac2935f182a54eaaca9e3"
   name = "golang.org/x/net"
   packages = [
     "idna",
@@ -422,7 +422,7 @@
     "websocket",
   ]
   pruneopts = "UT"
-  revision = "56fb01167e7d1e1d17dd87993d34c963f4356e87"
+  revision = "afe8014c977f78fe2406743d9d32c8bd44d0542b"
 
 [[projects]]
   branch = "master"
