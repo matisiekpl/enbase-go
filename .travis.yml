@@ -9,40 +9,28 @@ after_success:
   - bash <(curl -s https://codecov.io/bash)
 install: false
 jobs:
-  include:
-#    - stage: test
-#      install: false
-#      script:
-#        - curl -L -s https://github.com/golang/dep/releases/download/v0.3.1/dep-linux-amd64 -o $GOPATH/bin/dep
-#        - chmod +x $GOPATH/bin/dep
-#        - dep ensure
-#        - go test -race -coverprofile=coverage.txt -covermode=atomic
-    - stage: deploy
-      install: false
-      script:
-        - docker build -t enteam/enbase:build-$TRAVIS_BUILD_ID .
-        - if [[ "$TRAVIS_BRANCH" == "master" ]]; then docker tag enteam/enbase:build-$TRAVIS_BUILD_ID enteam/enbase; fi
-        - docker push enteam/enbase:build-$TRAVIS_BUILD_ID
-        - if [[ "$TRAVIS_BRANCH" == "master" ]]; then docker push enteam/enbase; fi
-#        - docker build -t enteam/enbase:build-$TRAVIS_BUILD_ID-full -f Dockerfile-full .
-#        - if [[ "$TRAVIS_BRANCH" == "master" ]]; then docker tag enteam/enbase:build-$TRAVIS_BUILD_ID-full enteam/enbase:full; fi
-#        - docker push enteam/enbase:build-$TRAVIS_BUILD_ID-full
-#        - if [[ "$TRAVIS_BRANCH" == "master" ]]; then docker push enteam/enbase:full; fi
-        - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get | bash
-        - cd charts/enbase
-        - helm init --client-only
-        - helm dep update
-        - helm package . -d charts
-        - helm repo index charts
-        - cd ..
-        - cd ..
-      if: type = push AND repo = enteam/enbase
-      deploy:
-        provider: pages
-        skip-cleanup: true
-        github-token: $GITHUB_TOKEN
-        repo: enteam/charts
-        local-dir: charts/enbase/charts
-        keep-history: true
-        on:
-          branch: master
+  - stage: deploy
+    install: false
+    script:
+      - docker build -t enteam/enbase:build-$TRAVIS_BUILD_ID .
+      - if [[ "$TRAVIS_BRANCH" == "master" ]]; then docker tag enteam/enbase:build-$TRAVIS_BUILD_ID enteam/enbase; fi
+      - docker push enteam/enbase:build-$TRAVIS_BUILD_ID
+      - if [[ "$TRAVIS_BRANCH" == "master" ]]; then docker push enteam/enbase; fi
+      - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get | bash
+      - cd charts/enbase
+      - helm init --client-only
+      - helm dep update
+      - helm package . -d charts
+      - helm repo index charts
+      - cd ..
+      - cd ..
+    if: type = push AND repo = enteam/enbase
+    deploy:
+      provider: pages
+      skip-cleanup: true
+      github-token: $GITHUB_TOKEN
+      repo: enteam/charts
+      local-dir: charts/enbase/charts
+      keep-history: true
+      on:
+        branch: master
