@@ -9,6 +9,7 @@ import (
 type Project struct {
 	Name       string `json:"name"`
 	Definition string `json:"definition"`
+	Mongo      string `json:"mongo"`
 }
 
 func ReadProjectsHandler(ctx echo.Context) error {
@@ -37,6 +38,7 @@ func ApplyProjectHandler(ctx echo.Context) error {
 		}
 	} else {
 		project.Definition = body.Definition
+		project.Mongo = body.Mongo
 		err := Database.C("projects").Update(map[string]string{
 			"name": body.Name,
 		}, project)
