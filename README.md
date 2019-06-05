@@ -1,3 +1,9 @@
+<h1 align="center">
+DEPRECTATION WARNING:
+Following project is currently deprecated, cause of 
+	<a href="https://github.com/enteam/enbase">enbase-dotnet</a> implementation. Pull requests and issues are ignored
+</h1> 
+
 <p align="center"><img width="30%" src="images/logo.png"/></p>
 
 <h1 align="center">Enbase :leaves:</h1>
